@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Carry the One">
-<meta name="ctone-pwa" content="2026.10.08-3">
+<meta name="ctone-pwa" content="1.3">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -86,7 +86,8 @@ h2.title{font-family:var(--font-num);font-weight:900;font-size:40px;line-height:
 @media (min-width:860px){.home{grid-template-columns:1.35fr 1fr;align-items:start;gap:28px}}
 .stack{display:grid;gap:20px;min-width:0}
 
-.modes{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.modes{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+@media (max-width:420px){.mode{padding:12px 10px 13px}.mode b{font-size:26px}.mode span{font-size:12px}}
 .mode{text-align:left;background:var(--surface);border:1.5px solid var(--line);border-radius:16px;padding:14px 14px 16px;display:grid;gap:4px}
 .mode b{font-family:var(--font-num);font-size:30px;font-weight:900;text-transform:uppercase;line-height:1}
 .mode span{font-size:13px;color:var(--muted)}
@@ -259,6 +260,8 @@ h2.title{font-family:var(--font-num);font-weight:900;font-size:40px;line-height:
 .danger{border:1.5px solid var(--bad);color:var(--bad);background:transparent;border-radius:10px;padding:8px 12px;font-weight:800;font-size:13px}
 .danger.solid{background:var(--bad);color:var(--surface)}
 
+.ver{margin:28px 0 0;text-align:center;font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.04em}
+.ver b{color:var(--fg)}
 .toast{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 14px);transform:translate(-50%,-20px);opacity:0;z-index:50;background:var(--fg);color:var(--bg);border-radius:12px;padding:10px 16px;font-weight:800;font-size:14px;pointer-events:none;transition:opacity .2s,transform .2s;max-width:calc(100vw - 32px);text-align:center}
 .toast.show{opacity:1;transform:translate(-50%,0)}
 #fx{position:fixed;inset:0;pointer-events:none;z-index:40;width:100%;height:100%}
@@ -276,6 +279,7 @@ h2.title{font-family:var(--font-num);font-weight:900;font-size:40px;line-height:
     <span class="purse" id="purse" aria-label="Carries balance"></span>
   </header>
   <main id="main"></main>
+  <p class="ver" id="ver"></p>
 </div>
 
 <nav class="nav" id="nav" aria-label="Sections">
@@ -298,6 +302,13 @@ h2.title{font-family:var(--font-num);font-weight:900;font-size:40px;line-height:
 "use strict";
 /* ---------- constants ---------- */
 const GOAL=40, GOAL_BONUS=30, PB_BONUS=25;
+const APP_VERSION='1.3';
+const CHANGELOG=[
+  ['1.3','Oct 8, 2026',['Race mode: a set number of problems, timed, +5s per miss','Version number and this list of updates']],
+  ['1.2','Oct 8, 2026',['Difficulty adapts within each level range','Keypad responds the instant you touch it']],
+  ['1.1','Oct 8, 2026',['Missed problems come back for a second look','Sprint countdown, save codes, works offline']],
+  ['1.0','Oct 8, 2026',['First version: Sprint, Endless, carries and the shop']]
+];
 const IS_PWA=!!document.querySelector('meta[name="ctone-pwa"]');
 const OPS={add:{sym:'+',label:'Add'},sub:{sym:'−',label:'Sub'},mul:{sym:'×',label:'Mult'},div:{sym:'÷',label:'Div'},frac:{sym:'a/b',label:'Frac'}};
 const OP_NAMES={add:'Addition',sub:'Subtraction',mul:'Multiplication',div:'Division',frac:'Fractions'};
@@ -348,12 +359,12 @@ function yesterday(){const d=new Date();d.setDate(d.getDate()-1);return dayKey(d
 function freshSave(){return{v:1,updatedAt:0,carries:0,totalEarned:0,
   life:{correct:0,attempts:0,bestStreak:0},
   ops:{add:{c:0,a:0,t:0},sub:{c:0,a:0,t:0},mul:{c:0,a:0,t:0},div:{c:0,a:0,t:0},frac:{c:0,a:0,t:0}},
-  bests:{},endless:{},levels:{easy:{},standard:{},hard:{}},history:[],
+  bests:{},endless:{},races:{},levels:{easy:{},standard:{},hard:{}},history:[],
   owned:{skins:['pad'],inks:['graphite'],fx:[]},
   eq:{skin:'pad',ink:'graphite',fx:{confetti:true,coins:true}},
   freezes:0,double:false,
   daily:{date:today(),correct:0,claimed:false,streak:0,last:''},
-  set:{mode:'sprint',dur:60,diff:'standard',ops:['add','sub','mul','div'],sound:true}};}
+  set:{mode:'sprint',dur:60,count:20,diff:'standard',ops:['add','sub','mul','div'],sound:true}};}
 function migrate(s){
   const f=freshSave(); if(!s||typeof s!=='object') return f;
   for(const k in f){ if(s[k]===undefined) s[k]=f[k];
@@ -438,6 +449,9 @@ function rollDaily(){const t=today();if(save.daily.date!==t){save.daily.date=t;s
 function dayStreak(){const d=save.daily;return(d.last===today()||d.last===yesterday())?d.streak:0;}
 function bestKey(s){return s.dur+'|'+s.diff+'|'+[...s.ops].sort().join('+');}
 function fmtMs(ms){return (ms/1000).toFixed(1)+'s';}
+const RACE_PENALTY=5000;
+function raceKey(s){return s.count+'|'+s.diff+'|'+[...s.ops].sort().join('+');}
+function fmtClock(ms){ms=Math.max(0,ms);const t=Math.floor(ms/100),m=Math.floor(t/600),sec=Math.floor(t/10)%60;return m+':'+pad2(sec)+'.'+(t%10);}
 
 /* ---------- problems ---------- */
 const N=v=>({t:'n',v}),F=(n,d)=>({t:'f',n,d}),S=v=>({t:'s',v});
@@ -551,6 +565,7 @@ let tab='play';
 function renderPurse(){$('#purse').innerHTML=coinSvg().replace('class="coin"','')+'<span class="num">'+save.carries.toLocaleString()+'</span><small>carries</small>';}
 function render(){
   renderPurse();
+  const ve=document.getElementById('ver');if(ve)ve.innerHTML=`Carry the One <b>v${APP_VERSION}</b> · updated ${CHANGELOG[0][1]}`;
   document.querySelectorAll('.nav button').forEach(b=>b.setAttribute('aria-current',b.dataset.tab===tab?'page':'false'));
   const m=$('#main');
   if(tab==='play')m.innerHTML=homeHTML();
@@ -562,7 +577,8 @@ function homeHTML(){
   rollDaily();
   const s=save.set,d=save.daily,r=rankFor(save.life.correct);
   const pct=Math.min(1,d.correct/GOAL),C=2*Math.PI*30;
-  const best=s.mode==='sprint'?(save.bests[bestKey(s)]||0):(save.endless[s.diff]||0);
+  if(!s.count)s.count=20;
+  const best=s.mode==='sprint'?(save.bests[bestKey(s)]||0):s.mode==='race'?(save.races[raceKey(s)]||0):(save.endless[s.diff]||0);
   const prog=r.next?Math.round((save.life.correct-r.at)/(r.next[0]-r.at)*100):100;
   const opChips=Object.keys(OPS).map(k=>`<button class="chip" data-op="${k}" aria-pressed="${s.ops.includes(k)}"><b>${OPS[k].sym}</b><span>${OPS[k].label}</span></button>`).join('');
   return `<div class="home">
@@ -570,16 +586,18 @@ function homeHTML(){
     <section>
       <p class="eyebrow">Mode</p>
       <div class="modes">
-        <button class="mode" data-mode="sprint" aria-pressed="${s.mode==='sprint'}"><b>Sprint</b><span>Beat the clock. Records saved per setup.</span></button>
+        <button class="mode" data-mode="sprint" aria-pressed="${s.mode==='sprint'}"><b>Sprint</b><span>Solve as many as you can before time runs out.</span></button>
+        <button class="mode" data-mode="race" aria-pressed="${s.mode==='race'}"><b>Race</b><span>A set number of problems. Your time is the score.</span></button>
         <button class="mode" data-mode="endless" aria-pressed="${s.mode==='endless'}"><b>Endless</b><span>No timer. Build the longest streak you can.</span></button>
       </div>
     </section>
+    ${s.mode==='race'?`<section><p class="eyebrow">Problems</p><div class="seg">${[10,20,50].map(n=>`<button data-count="${n}" aria-pressed="${s.count===n}">${n} problems</button>`).join('')}</div></section>`:''}
     ${s.mode==='sprint'?`<section><p class="eyebrow">Clock</p><div class="seg">${[30,60,120].map(t=>`<button data-dur="${t}" aria-pressed="${s.dur===t}">${t<60?t+' sec':(t/60)+' min'}</button>`).join('')}</div></section>`:''}
     <section><p class="eyebrow">Operations</p><div class="chips">${opChips}</div></section>
     <section><p class="eyebrow">Difficulty</p><div class="seg">${Object.keys(DIFFS).map(k=>`<button data-diff="${k}" aria-pressed="${s.diff===k}">${DIFFS[k]}</button>`).join('')}</div></section>
     <section>
-      <button class="go" data-act="start">Start ${s.mode==='sprint'?'sprint':'endless'}${best?`<small>${s.mode==='sprint'?'record':'best streak'} ${best}</small>`:''}</button>
-      <p class="hint"><span>Levels ${BANDS[s.diff][0]}–${BANDS[s.diff][1]}, adjusting to how you do</span><span>Harder levels pay more · fast answers +1</span></p>
+      <button class="go" data-act="start">Start ${s.mode}${best?`<small>${s.mode==='sprint'?'record '+best:s.mode==='race'?'record '+fmtClock(best):'best streak '+best}</small>`:''}</button>
+      <p class="hint">${s.mode==='race'?'<span>Each miss adds 5 seconds</span>':''}<span>Levels ${BANDS[s.diff][0]}–${BANDS[s.diff][1]}, adjusting to how you do</span><span>Harder levels pay more · fast answers +1</span></p>
     </section>
   </div>
   <div class="stack">
@@ -638,7 +656,7 @@ function shopHTML(){
         <li>Levels move with you: Warm-up stays in 1–4, Standard in 3–7, Hard in 6–9</li>
         <li><b>+1</b> for a fast answer (the time allowed grows with the level)</li>
         <li>Streaks multiply everything: <b>×2</b> from 10 in a row, <b>×3</b> from 25</li>
-        <li><b>+${GOAL_BONUS}</b> for the daily goal, <b>+${PB_BONUS}</b> for beating a sprint record</li>
+        <li><b>+${GOAL_BONUS}</b> for the daily goal, <b>+${PB_BONUS}</b> for beating a sprint or race record</li>
       </ul></div>
     <section class="section"><div class="section-h"><h3>Power-ups</h3><p>Used up when they fire</p></div>
       <div class="grid">
@@ -672,8 +690,10 @@ function statsHTML(){
     :`<div class="empty">Finish a run to see your speed and accuracy for each operation.</div>`;
   const bests=Object.entries(save.bests).sort((a,b)=>b[1]-a[1]).slice(0,8);
   const bestHTML=bests.length?`<ul class="list">${bests.map(([k,v])=>{const [dur,diff,ops]=k.split('|');return `<li><span>${dur<60?dur+'s':(dur/60)+' min'} · ${DIFFS[diff]} · ${ops.split('+').map(o=>OPS[o]?OPS[o].sym:o).join(' ')}</span><b>${v}</b></li>`;}).join('')}</ul>`:`<div class="empty">Sprint records show up here, one per clock, difficulty and operation mix.</div>`;
+  const races=Object.entries(save.races).sort((a,b)=>(+a[0].split('|')[0])-(+b[0].split('|')[0])||a[1]-b[1]).slice(0,8);
+  const raceHTML=races.length?`<ul class="list">${races.map(([k,v])=>{const [n,diff,ops]=k.split('|');return `<li><span>${n} problems · ${DIFFS[diff]} · ${ops.split('+').map(o=>OPS[o]?OPS[o].sym:o).join(' ')}</span><b>${fmtClock(v)}</b></li>`;}).join('')}</ul>`:`<div class="empty">Race records show your fastest time for each problem count, difficulty and operation mix.</div>`;
   const hist=save.history.slice(0,8);
-  const histHTML=hist.length?`<ul class="list">${hist.map(h=>{const d=new Date(h.at);return `<li><span>${d.toLocaleDateString(undefined,{month:'short',day:'numeric'})} · ${h.mode==='sprint'?(h.dur<60?h.dur+'s':(h.dur/60)+' min')+' sprint':'Endless'} · ${DIFFS[h.diff]}</span><b>${h.score} correct · ${h.acc}%</b></li>`;}).join('')}</ul>`:`<div class="empty">Your last eight runs will be listed here.</div>`;
+  const histHTML=hist.length?`<ul class="list">${hist.map(h=>{const d=new Date(h.at);return `<li><span>${d.toLocaleDateString(undefined,{month:'short',day:'numeric'})} · ${h.mode==='sprint'?(h.dur<60?h.dur+'s':(h.dur/60)+' min')+' sprint':h.mode==='race'?h.count+'-problem race':'Endless'} · ${DIFFS[h.diff]}</span><b>${h.mode==='race'&&h.time?fmtClock(h.time)+' · '+h.acc+'%':h.score+' correct · '+h.acc+'%'}</b></li>`;}).join('')}</ul>`:`<div class="empty">Your last eight runs will be listed here.</div>`;
   const syncText={cloud:'Saved to your Claude account, so your phone and computer share progress.',retry:'Saved on this device. Syncing to your account will retry on the next save.',device:IS_PWA?'Saved on this device, works with no internet. Use a save code to move progress to another device.':'Saved in this browser only. Use a save code to move progress to another device.',checking:'Checking for saved progress on your account…'}[cloud.status];
   return `<div>
     <p class="eyebrow">Stats</p>
@@ -686,7 +706,10 @@ function statsHTML(){
     </div>
     <section class="section"><div class="section-h"><h3>By operation</h3><p>Average time counts correct answers only</p></div>${table}</section>
     <section class="section"><div class="section-h"><h3>Sprint records</h3></div>${bestHTML}</section>
+    <section class="section"><div class="section-h"><h3>Race records</h3><p>Fastest times, misses included</p></div>${raceHTML}</section>
     <section class="section"><div class="section-h"><h3>Recent runs</h3></div>${histHTML}</section>
+    <section class="section"><div class="section-h"><h3>What's new</h3><p>You're on v${APP_VERSION}</p></div>
+      <ul class="list">${CHANGELOG.slice(0,3).map(([v,dt,items])=>`<li style="display:grid;gap:2px;justify-content:stretch"><b>v${v} <span class="muted" style="font-weight:600">· ${dt}</span></b><span class="muted">${items.join(' · ')}</span></li>`).join('')}</ul></section>
     <section class="section"><div class="section-h"><h3>Settings</h3></div>
       <div class="card" style="padding-block:6px">
         <div class="setting"><div><h4>Sound</h4><p>Short clicks for right and wrong answers</p></div><button class="toggle" data-do="sound" aria-pressed="${save.set.sound}" aria-label="Sound"></button></div>
@@ -721,7 +744,7 @@ let g=null,rafId=0;
 function startRun(){
   rollDaily();
   const s=save.set;
-  g={mode:s.mode,dur:s.dur,diff:s.diff,ops:[...s.ops],solved:0,attempts:0,streak:0,best:0,base:0,speed:0,mult:0,dailyBonus:0,
+  g={mode:s.mode,dur:s.dur,target:s.count||20,answered:0,penalty:0,diff:s.diff,ops:[...s.ops],solved:0,attempts:0,streak:0,best:0,base:0,speed:0,mult:0,dailyBonus:0,
      misses:[],times:[],input:'',locked:true,double:save.double,ended:false,freezesUsed:0,startLife:save.life.correct,p:null,prevText:'',queue:[],count:0,review:false,buf:[],buffering:false,missRun:0,lvNote:null,lv:{},lv0:{}};
   g.ops.forEach(o=>{const sv=save.levels[g.diff]&&save.levels[g.diff][o];const v=clampLv(typeof sv==='number'?sv-0.5:BANDS[g.diff][2],g.diff);g.lv[o]=v;g.lv0[o]=v;});
   if(g.double){save.double=false;}
@@ -731,7 +754,7 @@ function startRun(){
       <div class="clock" id="clock"></div>
       <span class="run-carries" id="runc">${coinSvg()}<span class="num">+0</span></span>
     </div>
-    ${g.mode==='sprint'?'<div class="tbar"><i id="tbar"></i></div>':''}
+    ${g.mode!=='endless'?'<div class="tbar"><i id="tbar"></i></div>':''}
     <div class="streak" id="streak"></div>
     <div class="stage" aria-live="polite">
       <div class="problem" id="prob"></div>
@@ -750,13 +773,14 @@ function startRun(){
   document.getElementById('nav').hidden=true;
   bindPad();lockScreen();hud();
   const run=g;
-  if(g.mode==='sprint'){
-    $('#clock').textContent=Math.floor(g.dur/60)+':'+pad2(g.dur%60);
+  if(g.mode!=='endless'){
+    $('#clock').textContent=g.mode==='sprint'?Math.floor(g.dur/60)+':'+pad2(g.dur%60):fmtClock(0);
+    if(g.mode==='race'){const b=$('#tbar');if(b)b.style.transform='scaleX(0)';}
     let n=3;
     const step=()=>{
       if(g!==run||run.ended)return;
       if(n>0){$('#prob').innerHTML=`<span class="count">${n}</span>`;$('#ans').innerHTML='';$('#fb').textContent=n===3?'Get ready':'';beep(520,.07,'triangle',.05);n--;setTimeout(step,reduceMotion?350:560);}
-      else{beep(1040,.1,'triangle',.06);run.endAt=performance.now()+run.dur*1000;next();tick();}
+      else{beep(1040,.1,'triangle',.06);run.startT=performance.now();run.endAt=run.startT+run.dur*1000;next();tick();}
     };
     step();
   } else {$('#clock').innerHTML='<span style="font-size:22px">Endless</span>';next();}
@@ -773,6 +797,12 @@ function bindPad(){
   ['pointerup','pointercancel','pointerleave'].forEach(t=>pad.addEventListener(t,up));
   pad.addEventListener('contextmenu',e=>e.preventDefault());
 }
+function raceAnswered(){
+  g.answered++;
+  const b=$('#tbar');if(b)b.style.transform='scaleX('+(g.answered/g.target)+')';
+  if(g.answered>=g.target){g.stopT=performance.now();$('#clock').textContent=fmtClock(g.stopT-g.startT+g.penalty);return true;}
+  return false;
+}
 function adjustLevel(op,delta){
   const old=g.lv[op];if(old===undefined)return;
   const nv=clampLv(old+delta,g.diff);g.lv[op]=nv;
@@ -781,6 +811,10 @@ function adjustLevel(op,delta){
 }
 function tick(){
   if(!g||g.ended)return;
+  if(g.mode==='race'){
+    if(!g.stopT)$('#clock').textContent=fmtClock(performance.now()-g.startT+g.penalty);
+    rafId=requestAnimationFrame(tick);return;
+  }
   const rem=g.endAt-performance.now();
   if(rem<=0){finish(false);return;}
   const sec=Math.ceil(rem/1000),c=$('#clock');
@@ -792,7 +826,7 @@ function hud(){
   const mult=g.streak>=25?3:g.streak>=10?2:1;
   const earned=(g.base+g.speed+g.mult)*(g.double?2:1);
   $('#runc').innerHTML=coinSvg()+'<span class="num">+'+earned+'</span>';
-  $('#streak').innerHTML=`<span class="pill ${mult>1?'hot':''}">Streak ${g.streak}${mult>1?' · ×'+mult:''}</span>${g.mode==='endless'?`<span class="pill">Solved ${g.solved}</span>`:''}${g.double?'<span class="pill hot">×2 boost</span>':''}${save.freezes?`<span class="pill">Freezes ${save.freezes}</span>`:''}${levelPill()}`;
+  $('#streak').innerHTML=`<span class="pill ${mult>1?'hot':''}">Streak ${g.streak}${mult>1?' · ×'+mult:''}</span>${g.mode==='endless'?`<span class="pill">Solved ${g.solved}</span>`:''}${g.mode==='race'?`<span class="pill">${Math.min(g.answered+(g.ended||g.locked?0:1),g.target)} / ${g.target}</span>${g.penalty?`<span class="pill" style="color:var(--bad)">+${g.penalty/1000}s</span>`:''}`:''}${g.double?'<span class="pill hot">×2 boost</span>':''}${save.freezes?`<span class="pill">Freezes ${save.freezes}</span>`:''}${levelPill()}`;
 }
 function levelPill(){
   if(!g.p)return '';
@@ -860,8 +894,12 @@ function correct(v){
   beep(880,.09,'triangle',.07);
   if([10,25,50,100].includes(g.streak)){toast(g.streak+' in a row'+(g.streak===10?' · ×2 carries':g.streak===25?' · ×3 carries':''));if(fxOn('confetti'))burst('bits');beep(1320,.15,'triangle',.06);}
   hud();
-  g.buf=[];g.buffering=!notSimple;
-  const run=g;setTimeout(()=>{if(g===run&&!run.ended)next();},notSimple?650:110);
+  const done=g.mode==='race'&&raceAnswered();
+  hud();
+  g.buf=[];g.buffering=!notSimple&&!done;
+  const run=g;
+  if(done){setTimeout(()=>{if(g===run&&!run.ended)finish(false);},450);return;}
+  setTimeout(()=>{if(g===run&&!run.ended)next();},notSimple?650:110);
 }
 function miss(typed){
   g.locked=true;g.buffering=false;g.buf=[];g.attempts++;save.life.attempts++;save.ops[g.p.op].a++;
@@ -873,9 +911,14 @@ function miss(typed){
   g.p.tries=(g.p.tries||0)+1;
   if(g.p.tries<=2)g.queue.push({p:g.p,due:g.count+rnd(3,5)});
   const a=$('#ans');a.className='answer bad';a.innerHTML=fmt(g.p.ans);
-  const fb=$('#fb');fb.className='feedback bad';fb.textContent=(typed?'✗ You wrote '+typed+'. ':'Skipped. ')+'Answer: '+fmt(g.p.ans)+(froze?' · freeze saved your streak':'');
-  beep(196,.18,'square',.04);buzz(60);hud();
-  const run=g;setTimeout(()=>{if(g===run&&!run.ended)next();},g.mode==='sprint'?900:1100);
+  if(g.mode==='race')g.penalty+=RACE_PENALTY;
+  const fb=$('#fb');fb.className='feedback bad';fb.textContent=(typed?'✗ You wrote '+typed+'. ':'Skipped. ')+'Answer: '+fmt(g.p.ans)+(g.mode==='race'?' · +5s':'')+(froze?' · freeze saved your streak':'');
+  beep(196,.18,'square',.04);buzz(60);
+  const done=g.mode==='race'&&raceAnswered();
+  hud();
+  const run=g;
+  if(done){setTimeout(()=>{if(g===run&&!run.ended)finish(false);},1100);return;}
+  setTimeout(()=>{if(g===run&&!run.ended)next();},g.mode==='endless'?1100:900);
 }
 function finish(early){
   if(!g||g.ended)return;
@@ -884,6 +927,12 @@ function finish(early){
   let earned=g.base+g.speed+g.mult,boost=g.double?earned:0;
   let pb=false,pbBonus=0,prev=0;
   if(g.mode==='sprint'&&!early){const k=bestKey(g);prev=save.bests[k]||0;if(g.solved>prev){save.bests[k]=g.solved;pb=true;pbBonus=prev>0?PB_BONUS:0;}}
+  let raceTime=0;
+  if(g.mode==='race'&&!early){
+    raceTime=Math.round((g.stopT||performance.now())-g.startT+g.penalty);
+    const k=raceKey({count:g.target,diff:g.diff,ops:g.ops});prev=save.races[k]||0;
+    if(!prev||raceTime<prev){save.races[k]=raceTime;pb=true;pbBonus=prev>0?PB_BONUS:0;}
+  }
   let streakRecord=false,prevStreak=0;
   if(g.mode==='endless'){prevStreak=save.endless[g.diff]||0;if(g.best>prevStreak&&g.best>=5){save.endless[g.diff]=g.best;streakRecord=true;}}
   const total=earned+boost+pbBonus;
@@ -892,16 +941,18 @@ function finish(early){
   save.carries+=total;save.totalEarned+=total;
   save.life.bestStreak=Math.max(save.life.bestStreak,g.best);
   const acc=g.attempts?Math.round(g.solved/g.attempts*100):0;
-  save.history.unshift({at:Date.now(),mode:g.mode,dur:g.dur,diff:g.diff,score:g.solved,acc,earned:total});
+  save.history.unshift({at:Date.now(),mode:g.mode,dur:g.dur,count:g.target,time:raceTime||undefined,diff:g.diff,score:g.solved,acc,earned:total});
   save.history=save.history.slice(0,20);
   persist();
   const r0=rankFor(g.startLife).name,r1=rankFor(save.life.correct).name;
   const avg=g.times.length?g.times.reduce((a,b)=>a+b,0)/g.times.length:0;
-  const title=g.mode==='sprint'?(early?'Sprint ended early':'Time'):'Endless run';
+  const title=g.mode==='sprint'?(early?'Sprint ended early':'Time'):g.mode==='race'?(early?'Race ended early':'Race finished'):'Endless run';
+  const isRace=g.mode==='race'&&!early;
   $('#layer').innerHTML=`<div class="screen results"><div class="sheet">
-    <div><p class="eyebrow">${title} · ${DIFFS[g.diff]}${g.mode==='sprint'?' · '+(g.dur<60?g.dur+' sec':(g.dur/60)+' min'):''}</p>
-      <div class="score"><span class="big num">${g.solved}</span><span class="lbl">correct</span>${pb?'<span class="badge">New record</span>':''}${streakRecord?'<span class="badge">Best streak yet</span>':''}${r0!==r1?`<span class="badge">Rank up: ${r1}</span>`:''}</div>
+    <div><p class="eyebrow">${title} · ${DIFFS[g.diff]}${g.mode==='sprint'?' · '+(g.dur<60?g.dur+' sec':(g.dur/60)+' min'):g.mode==='race'?' · '+g.target+' problems':''}</p>
+      <div class="score">${isRace?`<span class="big num">${fmtClock(raceTime)}</span><span class="lbl">for ${g.target} problems</span>`:`<span class="big num">${g.solved}</span><span class="lbl">correct</span>`}${pb?'<span class="badge">New record</span>':''}${streakRecord?'<span class="badge">Best streak yet</span>':''}${r0!==r1?`<span class="badge">Rank up: ${r1}</span>`:''}</div>
       ${g.mode==='sprint'&&!pb&&prev?`<p class="muted" style="margin:8px 0 0">Record for this setup: ${prev}</p>`:''}
+      ${isRace?`<p class="muted" style="margin:8px 0 0">${g.solved} of ${g.target} correct${g.penalty?` · includes ${g.penalty/1000}s of miss penalties`:''}${!pb&&prev?` · record for this setup: ${fmtClock(prev)}`:''}</p>`:''}
       ${g.mode==='endless'&&!streakRecord&&prevStreak?`<p class="muted" style="margin:8px 0 0">Best ${DIFFS[g.diff]} streak: ${prevStreak}</p>`:''}</div>
     <div class="facts">
       <div class="fact"><b>${acc}%</b><span>Accuracy</span></div>
@@ -915,7 +966,7 @@ function finish(early){
         <tr><td>Fast answers</td><td>+${g.speed}</td></tr>
         <tr><td>Streak multiplier</td><td>+${g.mult}</td></tr>
         ${g.double?`<tr><td>×2 boost</td><td>+${boost}</td></tr>`:''}
-        ${pbBonus?`<tr><td>New sprint record</td><td>+${pbBonus}</td></tr>`:''}
+        ${pbBonus?`<tr><td>New ${g.mode} record</td><td>+${pbBonus}</td></tr>`:''}
         ${g.dailyBonus?`<tr><td>Daily goal (already added)</td><td>+${g.dailyBonus}</td></tr>`:''}
         <tr class="total"><td>Total</td><td>${coinSvg()} +${total+g.dailyBonus}</td></tr>
       </tbody></table></div>
@@ -942,6 +993,7 @@ document.addEventListener('click',e=>{
   const s=save.set;
   if(t.dataset.mode){s.mode=t.dataset.mode;persist();render();return;}
   if(t.dataset.dur){s.dur=+t.dataset.dur;persist();render();return;}
+  if(t.dataset.count){s.count=+t.dataset.count;persist();render();return;}
   if(t.dataset.diff){s.diff=t.dataset.diff;persist();render();return;}
   if(t.dataset.op){const k=t.dataset.op,i=s.ops.indexOf(k);
     if(i>=0){if(s.ops.length===1){toast('Keep at least one operation');return;}s.ops.splice(i,1);}else s.ops.push(k);
@@ -995,6 +1047,11 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
 
 /* ---------- boot ---------- */
 rollDaily();applyLook();render();initCloud();
+(function announce(){
+  const KEY='carry-the-one-version';let seen=null;
+  try{seen=localStorage.getItem(KEY);localStorage.setItem(KEY,APP_VERSION);}catch(e){return;}
+  if(seen&&seen!==APP_VERSION){setTimeout(()=>toast('Updated to v'+APP_VERSION+': '+CHANGELOG[0][2][0]),400);}
+})();
 })();
 </script>
 <script>

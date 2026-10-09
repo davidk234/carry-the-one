@@ -1,5 +1,5 @@
 // Carry the One offline cache. Bump VERSION to push an update.
-const VERSION='2026.10.08-3';
+const VERSION='1.3';
 const CACHE='carry-the-one-'+VERSION;
 const ASSETS=['./','./index.html','./manifest.webmanifest','./icons/icon-192.png','./icons/icon-512.png','./icons/icon-maskable-512.png','./icons/apple-touch-icon.png'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)).then(()=>self.skipWaiting()));});
