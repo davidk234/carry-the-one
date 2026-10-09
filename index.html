@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Carry the One">
-<meta name="ctone-pwa" content="2026.10.08-2">
+<meta name="ctone-pwa" content="2026.10.08-3">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -142,6 +142,8 @@ h2.title{font-family:var(--font-num);font-weight:900;font-size:40px;line-height:
 .streak{display:flex;justify-content:center;gap:8px;min-height:30px}
 .pill{display:inline-flex;align-items:center;gap:6px;border:1.5px solid var(--line);background:var(--surface);border-radius:99px;padding:3px 12px;font-size:13.5px;font-weight:800}
 .pill.hot{border-color:var(--fg);background:var(--hl);color:var(--hl-ink)}
+.pill.lvl.up{border-color:var(--good);color:var(--good)}
+.pill.lvl.down{border-color:var(--bad);color:var(--bad)}
 .stage{flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}
 .problem{font-family:var(--font-num);font-weight:900;color:var(--ink);font-size:clamp(60px,17vw,130px);line-height:1;display:flex;align-items:center;gap:.22em;flex-wrap:nowrap;font-variant-numeric:tabular-nums;white-space:nowrap}
 .problem .op{font-weight:700;opacity:.85}
@@ -158,11 +160,12 @@ h2.title{font-family:var(--font-num);font-weight:900;font-size:40px;line-height:
 .feedback{min-height:24px;font-weight:800;font-size:15px;text-align:center}
 .feedback.good{color:var(--good)} .feedback.bad{color:var(--bad)}
 .pad{width:100%;max-width:420px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
-.key{height:clamp(50px,8.4vh,66px);border:1.5px solid var(--line);background:var(--surface);border-radius:14px;font-family:var(--font-num);font-weight:800;font-size:32px;box-shadow:0 3px 0 var(--line);touch-action:manipulation;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;transition:transform .05s,box-shadow .05s}
-.key:active,.key.down{transform:translateY(2px);box-shadow:0 1px 0 var(--line)}
+.key{height:clamp(50px,8.4vh,66px);border:1.5px solid var(--line);background:var(--surface);border-radius:14px;font-family:var(--font-num);font-weight:800;font-size:32px;box-shadow:0 3px 0 var(--line);touch-action:manipulation;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;transition:none}
+.key.down{transform:translateY(2px);box-shadow:0 1px 0 var(--line);background:var(--surface-2)}
+.pad{user-select:none;-webkit-user-select:none;touch-action:manipulation}
 .key.small{font-family:var(--font-body);font-size:14px;font-weight:800;color:var(--muted)}
 .key.enter{grid-column:span 2;background:var(--hl);color:var(--hl-ink);border:2px solid var(--fg);box-shadow:0 3px 0 var(--fg)}
-.key.enter:active,.key.enter.down{box-shadow:0 1px 0 var(--fg)}
+.key.enter.down{box-shadow:0 1px 0 var(--fg);background:var(--hl);filter:brightness(.92)}
 .kbd-hint{text-align:center;font-size:12px;color:var(--muted);margin:2px 0 0}
 @media (pointer:coarse){.kbd-hint{display:none}}
 
@@ -345,7 +348,7 @@ function yesterday(){const d=new Date();d.setDate(d.getDate()-1);return dayKey(d
 function freshSave(){return{v:1,updatedAt:0,carries:0,totalEarned:0,
   life:{correct:0,attempts:0,bestStreak:0},
   ops:{add:{c:0,a:0,t:0},sub:{c:0,a:0,t:0},mul:{c:0,a:0,t:0},div:{c:0,a:0,t:0},frac:{c:0,a:0,t:0}},
-  bests:{},endless:{},history:[],
+  bests:{},endless:{},levels:{easy:{},standard:{},hard:{}},history:[],
   owned:{skins:['pad'],inks:['graphite'],fx:[]},
   eq:{skin:'pad',ink:'graphite',fx:{confetti:true,coins:true}},
   freezes:0,double:false,
@@ -439,47 +442,67 @@ function fmtMs(ms){return (ms/1000).toFixed(1)+'s';}
 /* ---------- problems ---------- */
 const N=v=>({t:'n',v}),F=(n,d)=>({t:'f',n,d}),S=v=>({t:'s',v});
 function P(parts,ans,op){return{parts,ans:reduce(ans),op,text:parts.map(p=>p.t==='s'?p.v:p.t==='f'?p.n+'/'+p.d:neg(p.v)).join(' ')};}
-function gen(op,diff){
-  if(op==='add'){const R={easy:[[4,30],[2,19]],standard:[[13,99],[12,99]],hard:[[101,999],[27,999]]}[diff];
-    let a=rnd(...R[0]),b=rnd(...R[1]);if(Math.random()<.5)[a,b]=[b,a];return P([N(a),S('+'),N(b)],{n:a+b,d:1},op);}
-  if(op==='sub'){const R={easy:[[11,40],[2,19]],standard:[[30,150],[12,99]],hard:[[150,999],[27,999]]}[diff];
-    let a=rnd(...R[0]),b=rnd(...R[1]);if(a===b)a+=rnd(1,9);
-    if(b>a&&!(diff==='hard'&&Math.random()<.25))[a,b]=[b,a];
-    return P([N(a),S('−'),N(b)],{n:a-b,d:1},op);}
-  if(op==='mul'){let a,b;
-    if(diff==='easy'){a=rnd(2,12);b=rnd(2,9);}
-    else if(diff==='standard'){if(Math.random()<.5){a=rnd(13,19);b=rnd(3,9);}else{a=rnd(21,99);b=rnd(2,9);}}
-    else{if(Math.random()<.55){a=rnd(11,39);b=rnd(11,29);}else{a=rnd(101,499);b=rnd(3,9);}}
-    if(Math.random()<.5)[a,b]=[b,a];return P([N(a),S('×'),N(b)],{n:a*b,d:1},op);}
-  if(op==='div'){const R={easy:[[2,10],[2,10]],standard:[[3,12],[6,25]],hard:[[6,19],[12,60]]}[diff];
-    const d=rnd(...R[0]),q=rnd(...R[1]);return P([N(d*q),S('÷'),N(d)],{n:q,d:1},op);}
-  // fractions
-  for(let guard=0;guard<200;guard++){
-    if(diff==='easy'){
-      if(Math.random()<.35){const d=pick([2,3,4,5,6,8,10]),n=rnd(1,d-1);if(gcd(n,d)>1)continue;const k=d*rnd(2,9);
-        return P([F(n,d),S('×'),N(k)],{n:n*k,d:d},op);}
-      const d=rnd(3,12);let a=rnd(1,d-1),b=rnd(1,d-1);if(gcd(a,d)>1||gcd(b,d)>1)continue;
-      if(Math.random()<.5) return P([F(a,d),S('+'),F(b,d)],{n:a+b,d},op);
-      if(a===b)continue;if(a<b)[a,b]=[b,a];return P([F(a,d),S('−'),F(b,d)],{n:a-b,d},op);
+/* Levels 1-9. Each difficulty adapts inside its own band: [min, max, start]. */
+const BANDS={easy:[1,4,2],standard:[3,7,4.5],hard:[6,9,7]};
+const clampLv=(v,diff)=>Math.max(BANDS[diff][0],Math.min(BANDS[diff][1],v));
+const LV={
+  add:[[[2,9],[2,9]],[[11,49],[2,9]],[[11,50],[11,40]],[[13,99],[12,99]],[[101,499],[12,99]],[[101,999],[25,199]],[[101,999],[101,999]],[[1001,4999],[101,999]],[[1001,9999],[1001,9999]]],
+  sub:[[[5,18],[2,9]],[[11,49],[2,9]],[[20,60],[11,40]],[[30,150],[12,99]],[[100,499],[12,99]],[[200,999],[101,499]],[[300,999],[101,999]],[[1001,4999],[101,999]],[[1001,9999],[1001,9999]]],
+  mul:[[[[2,5],[2,9]]],[[[2,10],[2,10]]],[[[2,12],[3,12]]],[[[13,19],[3,9]],[[2,12],[11,12]]],[[[21,99],[2,9]],[[13,19],[3,9]]],[[[11,25],[11,19]],[[21,99],[3,9]]],[[[101,499],[3,9]],[[21,39],[11,29]]],[[[21,59],[21,49]],[[101,999],[3,9]]],[[[41,99],[21,59]],[[101,499],[11,19]]]],
+  div:[[[2,5],[2,9]],[[2,10],[2,10]],[[3,12],[3,12]],[[3,9],[11,25]],[[6,12],[12,30]],[[11,19],[6,20]],[[12,25],[12,40]],[[13,30],[21,60]],[[21,50],[21,99]]],
+  negSub:[0,0,0,0,0,0,.15,.15,.25],
+  frac:[null,null,null,
+    {dens:[2,3,4,5,6],ops:['+','−','×'],imp:false,maxD:36},
+    {dens:[2,3,4,5,6,8,9,10,12],ops:['+','−','×'],imp:false,maxD:72},
+    {dens:[2,3,4,5,6,8,9,10,12],ops:['+','−','×','÷'],imp:true,maxD:90},
+    {dens:[2,3,4,5,6,7,8,9,10,11,12],ops:['+','−','×','÷'],imp:true,maxD:120},
+    {dens:[2,3,4,5,6,7,8,9,10,11,12,14,15],ops:['+','−','×','÷'],imp:true,maxD:150},
+    {dens:[2,3,4,5,6,7,8,9,10,11,12,13,14,15,16],ops:['+','−','×','÷'],imp:true,maxD:200}]
+};
+function gen(op,level){
+  const L=Math.max(1,Math.min(9,Math.round(level)));
+  const mk=(parts,ans)=>{const p=P(parts,ans,op);p.level=L;return p;};
+  if(op==='add'){const R=LV.add[L-1];let a=rnd(...R[0]),b=rnd(...R[1]);if(Math.random()<.5)[a,b]=[b,a];return mk([N(a),S('+'),N(b)],{n:a+b,d:1});}
+  if(op==='sub'){const R=LV.sub[L-1];let a=rnd(...R[0]),b=rnd(...R[1]);if(a===b)a+=rnd(1,5);
+    if(b>a&&!(Math.random()<LV.negSub[L-1]))[a,b]=[b,a];
+    return mk([N(a),S('−'),N(b)],{n:a-b,d:1});}
+  if(op==='mul'){const R=pick(LV.mul[L-1]);let a=rnd(...R[0]),b=rnd(...R[1]);if(Math.random()<.5)[a,b]=[b,a];return mk([N(a),S('×'),N(b)],{n:a*b,d:1});}
+  if(op==='div'){const R=LV.div[L-1];const d=rnd(...R[0]),q=rnd(...R[1]);return mk([N(d*q),S('÷'),N(d)],{n:q,d:1});}
+  for(let guard=0;guard<300;guard++){
+    if(L<=2){
+      if(Math.random()<(L===1?.5:.35)){const d=pick(L===1?[2,3,4,5,10]:[2,3,4,5,6,8,10]),n=L===1?1:rnd(1,d-1);if(gcd(n,d)>1)continue;
+        const k=d*rnd(2,L===1?6:9);return mk([F(n,d),S('×'),N(k)],{n:n*k,d});}
+      const d=rnd(3,L===1?10:12);let a=rnd(1,d-1),b=rnd(1,d-1);if(gcd(a,d)>1||gcd(b,d)>1)continue;
+      if(L===1||Math.random()<.5){if(L===1&&a+b>d)continue;return mk([F(a,d),S('+'),F(b,d)],{n:a+b,d});}
+      if(a===b)continue;if(a<b)[a,b]=[b,a];return mk([F(a,d),S('−'),F(b,d)],{n:a-b,d});
     }
-    const dens=diff==='standard'?[2,3,4,5,6,8,9,10,12]:[2,3,4,5,6,7,8,9,10,11,12,14,15];
-    const d1=pick(dens),d2=pick(dens);if(d1===d2)continue;
-    const n1=rnd(1,diff==='hard'?d1*2-1:d1-1),n2=rnd(1,d2-1);
-    if(gcd(n1,d1)>1||gcd(n2,d2)>1)continue;
-    const o=pick(diff==='standard'?['+','−','×']:['+','−','×','÷']);
-    let A=F(n1,d1),B=F(n2,d2),ans;
+    if(L===3){
+      const pr=pick([[2,4],[3,6],[4,8],[5,10],[2,6],[3,9],[2,8],[4,12],[6,12],[2,10]]);
+      const [d1,d2]=Math.random()<.5?pr:[pr[1],pr[0]];
+      const n1=rnd(1,d1-1),n2=rnd(1,d2-1);if(gcd(n1,d1)>1||gcd(n2,d2)>1)continue;
+      let A=F(n1,d1),B=F(n2,d2);
+      if(Math.random()<.55)return mk([A,S('+'),B],{n:n1*d2+n2*d1,d:d1*d2});
+      const v1=n1*d2,v2=n2*d1;if(v1===v2)continue;if(v1<v2)[A,B]=[B,A];
+      return mk([A,S('−'),B],{n:Math.abs(v1-v2),d:d1*d2});
+    }
+    const C=LV.frac[L-1];
+    const d1=pick(C.dens),d2=pick(C.dens);if(d1===d2)continue;
+    const n1=rnd(1,C.imp&&Math.random()<.4?d1*2-1:d1-1),n2=rnd(1,d2-1);
+    if(n1===d1||gcd(n1,d1)>1||gcd(n2,d2)>1)continue;
+    const o=pick(C.ops);let A=F(n1,d1),B=F(n2,d2),ans;
     if(o==='+')ans={n:n1*d2+n2*d1,d:d1*d2};
-    else if(o==='−'){const v1=n1*d2,v2=n2*d1;if(v1===v2)continue;if(v1<v2){[A,B]=[B,A];}ans={n:Math.abs(v1-v2),d:d1*d2};}
+    else if(o==='−'){const v1=n1*d2,v2=n2*d1;if(v1===v2)continue;if(v1<v2)[A,B]=[B,A];ans={n:Math.abs(v1-v2),d:d1*d2};}
     else if(o==='×')ans={n:n1*n2,d:d1*d2};
     else ans={n:n1*d2,d:d1*n2};
-    if(reduce(ans).d>120)continue;
-    return P([A,S(o),B],ans,op);
+    if(reduce(ans).d>C.maxD)continue;
+    return mk([A,S(o),B],ans);
   }
-  return P([F(1,2),S('+'),F(1,4)],{n:3,d:4},op);
+  return mk([F(1,2),S('+'),F(1,4)],{n:3,d:4});
 }
 function parseAns(s){const m=s.match(/^(-?\d+)(?:\/(\d+))?$/);if(!m)return null;const n=parseInt(m[1],10),d=m[2]===undefined?1:parseInt(m[2],10);if(!d)return null;return{n,d};}
 const eqv=(a,b)=>a.n*b.d===b.n*a.d;
-function speedLimit(op,diff){return({add:3000,sub:3500,mul:3500,div:3500,frac:7000}[op])*({easy:1,standard:1.4,hard:2}[diff]);}
+function speedLimit(op,L){return({add:3000,sub:3500,mul:3500,div:3500,frac:7000}[op])*(0.8+0.15*L);}
+const payFor=L=>1+Math.floor((Math.round(L)-1)/3);
 
 /* ---------- sound ---------- */
 let actx=null;
@@ -556,7 +579,7 @@ function homeHTML(){
     <section><p class="eyebrow">Difficulty</p><div class="seg">${Object.keys(DIFFS).map(k=>`<button data-diff="${k}" aria-pressed="${s.diff===k}">${DIFFS[k]}</button>`).join('')}</div></section>
     <section>
       <button class="go" data-act="start">Start ${s.mode==='sprint'?'sprint':'endless'}${best?`<small>${s.mode==='sprint'?'record':'best streak'} ${best}</small>`:''}</button>
-      <p class="hint"><span>${{easy:'Warm-up pays 1',standard:'Standard pays 2',hard:'Hard pays 3'}[s.diff]} per answer${s.ops.includes('frac')?', +1 on fractions':''}</span><span>Fast answers +1</span></p>
+      <p class="hint"><span>Levels ${BANDS[s.diff][0]}–${BANDS[s.diff][1]}, adjusting to how you do</span><span>Harder levels pay more · fast answers +1</span></p>
     </section>
   </div>
   <div class="stack">
@@ -611,8 +634,9 @@ function shopHTML(){
     <h2 class="title">Spend your <span class="mark">carries</span></h2>
     <div class="card" style="margin-top:16px"><p class="eyebrow">How you earn</p>
       <ul class="explain">
-        <li><b>1 / 2 / 3</b> per correct answer on Warm-up / Standard / Hard, <b>+1</b> for fractions</li>
-        <li><b>+1</b> for a fast answer (about 3 seconds on Standard arithmetic)</li>
+        <li><b>1</b> per answer at levels 1–3, <b>2</b> at 4–6, <b>3</b> at 7–9, <b>+1</b> for fractions</li>
+        <li>Levels move with you: Warm-up stays in 1–4, Standard in 3–7, Hard in 6–9</li>
+        <li><b>+1</b> for a fast answer (the time allowed grows with the level)</li>
         <li>Streaks multiply everything: <b>×2</b> from 10 in a row, <b>×3</b> from 25</li>
         <li><b>+${GOAL_BONUS}</b> for the daily goal, <b>+${PB_BONUS}</b> for beating a sprint record</li>
       </ul></div>
@@ -640,10 +664,11 @@ function statsHTML(){
   const L=save.life,acc=L.attempts?Math.round(L.correct/L.attempts*100):0;
   const rows=Object.keys(OPS).filter(k=>save.ops[k].a>0);
   let slowest=null,slowRatio=0;
-  rows.forEach(k=>{const o=save.ops[k];if(o.c<5)return;const avg=o.t/o.c,ratio=avg/speedLimit(k,'standard');if(ratio>slowRatio){slowRatio=ratio;slowest=k;}});
-  const table=rows.length?`<div class="tablewrap"><table class="optable"><thead><tr><th></th><th>Solved</th><th>Accuracy</th><th class="r">Avg time</th></tr></thead><tbody>${rows.map(k=>{const o=save.ops[k],a=Math.round(o.c/o.a*100);
-    return `<tr class="${k===slowest?'slow':''}"><td class="opsym"><span>${OPS[k].sym}</span></td><td>${o.c}</td><td><div class="acc"><div class="bar"><i style="width:${a}%"></i></div>${a}%</div></td><td class="r">${o.c?fmtMs(o.t/o.c):'–'}</td></tr>`;}).join('')}</tbody></table></div>
-    ${slowest?`<p class="muted" style="margin:10px 0 0;font-size:13.5px">Slowest relative to target: <b style="color:var(--fg)">${OP_NAMES[slowest]}</b>. A few ${OPS[slowest].sym}-only sprints will move this number fastest.</p>`:''}`
+  rows.forEach(k=>{const o=save.ops[k];if(o.c<5)return;const avg=o.t/o.c,ratio=avg/speedLimit(k,5);if(ratio>slowRatio){slowRatio=ratio;slowest=k;}});
+  const table=rows.length?`<div class="tablewrap"><table class="optable"><thead><tr><th></th><th>Solved</th><th>Accuracy</th><th>Level</th><th class="r">Avg time</th></tr></thead><tbody>${rows.map(k=>{const o=save.ops[k],a=Math.round(o.c/o.a*100);
+    return `<tr class="${k===slowest?'slow':''}"><td class="opsym"><span>${OPS[k].sym}</span></td><td>${o.c}</td><td><div class="acc"><div class="bar"><i style="width:${a}%"></i></div>${a}%</div></td><td>${typeof save.levels[save.set.diff][k]==='number'?Math.round(save.levels[save.set.diff][k]):'–'}</td><td class="r">${o.c?fmtMs(o.t/o.c):'–'}</td></tr>`;}).join('')}</tbody></table></div>
+    <p class="muted" style="margin:10px 0 0;font-size:13px">Levels shown for ${DIFFS[save.set.diff]}, your current difficulty.</p>
+    ${slowest?`<p class="muted" style="margin:6px 0 0;font-size:13.5px">Slowest relative to target: <b style="color:var(--fg)">${OP_NAMES[slowest]}</b>. A few ${OPS[slowest].sym}-only sprints will move this number fastest.</p>`:''}`
     :`<div class="empty">Finish a run to see your speed and accuracy for each operation.</div>`;
   const bests=Object.entries(save.bests).sort((a,b)=>b[1]-a[1]).slice(0,8);
   const bestHTML=bests.length?`<ul class="list">${bests.map(([k,v])=>{const [dur,diff,ops]=k.split('|');return `<li><span>${dur<60?dur+'s':(dur/60)+' min'} · ${DIFFS[diff]} · ${ops.split('+').map(o=>OPS[o]?OPS[o].sym:o).join(' ')}</span><b>${v}</b></li>`;}).join('')}</ul>`:`<div class="empty">Sprint records show up here, one per clock, difficulty and operation mix.</div>`;
@@ -697,7 +722,8 @@ function startRun(){
   rollDaily();
   const s=save.set;
   g={mode:s.mode,dur:s.dur,diff:s.diff,ops:[...s.ops],solved:0,attempts:0,streak:0,best:0,base:0,speed:0,mult:0,dailyBonus:0,
-     misses:[],times:[],input:'',locked:true,double:save.double,ended:false,freezesUsed:0,startLife:save.life.correct,p:null,prevText:'',queue:[],count:0,review:false};
+     misses:[],times:[],input:'',locked:true,double:save.double,ended:false,freezesUsed:0,startLife:save.life.correct,p:null,prevText:'',queue:[],count:0,review:false,buf:[],buffering:false,missRun:0,lvNote:null,lv:{},lv0:{}};
+  g.ops.forEach(o=>{const sv=save.levels[g.diff]&&save.levels[g.diff][o];const v=clampLv(typeof sv==='number'?sv-0.5:BANDS[g.diff][2],g.diff);g.lv[o]=v;g.lv0[o]=v;});
   if(g.double){save.double=false;}
   $('#layer').innerHTML=`<div class="screen" id="game"><div class="screen-in">
     <div class="hud">
@@ -722,7 +748,7 @@ function startRun(){
     <p class="kbd-hint">Type with your keyboard · Enter to check · Space to skip · Esc to end</p>
   </div></div>`;
   document.getElementById('nav').hidden=true;
-  lockScreen();hud();
+  bindPad();lockScreen();hud();
   const run=g;
   if(g.mode==='sprint'){
     $('#clock').textContent=Math.floor(g.dur/60)+':'+pad2(g.dur%60);
@@ -734,6 +760,24 @@ function startRun(){
     };
     step();
   } else {$('#clock').innerHTML='<span style="font-size:22px">Endless</span>';next();}
+}
+let lastPtr=0;
+function bindPad(){
+  const pad=$('#pad');if(!pad)return;
+  const up=()=>pad.querySelectorAll('.key.down').forEach(b=>b.classList.remove('down'));
+  pad.addEventListener('pointerdown',e=>{
+    const b=e.target.closest('.key');if(!b)return;
+    e.preventDefault();lastPtr=performance.now();
+    b.classList.add('down');press(b.dataset.k);
+  });
+  ['pointerup','pointercancel','pointerleave'].forEach(t=>pad.addEventListener(t,up));
+  pad.addEventListener('contextmenu',e=>e.preventDefault());
+}
+function adjustLevel(op,delta){
+  const old=g.lv[op];if(old===undefined)return;
+  const nv=clampLv(old+delta,g.diff);g.lv[op]=nv;
+  const oi=Math.round(old),ni=Math.round(nv);
+  if(ni!==oi)g.lvNote={op,dir:ni>oi?1:-1,until:g.count+2};
 }
 function tick(){
   if(!g||g.ended)return;
@@ -748,23 +792,33 @@ function hud(){
   const mult=g.streak>=25?3:g.streak>=10?2:1;
   const earned=(g.base+g.speed+g.mult)*(g.double?2:1);
   $('#runc').innerHTML=coinSvg()+'<span class="num">+'+earned+'</span>';
-  $('#streak').innerHTML=`<span class="pill ${mult>1?'hot':''}">Streak ${g.streak}${mult>1?' · ×'+mult:''}</span>${g.mode==='endless'?`<span class="pill">Solved ${g.solved}</span>`:''}${g.double?'<span class="pill hot">×2 boost</span>':''}${save.freezes?`<span class="pill">Freezes ${save.freezes}</span>`:''}`;
+  $('#streak').innerHTML=`<span class="pill ${mult>1?'hot':''}">Streak ${g.streak}${mult>1?' · ×'+mult:''}</span>${g.mode==='endless'?`<span class="pill">Solved ${g.solved}</span>`:''}${g.double?'<span class="pill hot">×2 boost</span>':''}${save.freezes?`<span class="pill">Freezes ${save.freezes}</span>`:''}${levelPill()}`;
+}
+function levelPill(){
+  if(!g.p)return '';
+  const op=g.p.op,L=g.p.level||Math.round(g.lv[op]);
+  const note=g.lvNote&&g.lvNote.op===op&&g.count<=g.lvNote.until?g.lvNote.dir:0;
+  return `<span class="pill lvl${note>0?' up':note<0?' down':''}">${g.ops.length>1?OPS[op].sym+' ':''}Level ${L}${note>0?' ▲':note<0?' ▼':''}</span>`;
 }
 function next(){
   g.count++;
   let p,guard=0;
   const qi=g.queue.findIndex(q=>q.due<=g.count);
   if(qi>=0){p=g.queue.splice(qi,1)[0].p;g.review=true;}
-  else{g.review=false;do{p=gen(pickOp(g.ops),g.diff);}while(p.text===g.prevText&&guard++<10);}
+  else{g.review=false;const op=pickOp(g.ops);do{p=gen(op,g.lv[op]);}while(p.text===g.prevText&&guard++<10);}
   g.p=p;g.prevText=p.text;g.input='';g.locked=false;g.t0=performance.now();
   $('#prob').innerHTML=p.parts.map(x=>x.t==='s'?`<span class="op">${x.v}</span>`:x.t==='f'?`<span class="frac"><span>${x.n}</span><span>${x.d}</span></span>`:`<span>${neg(x.v)}</span>`).join('');
   const a=$('#ans');a.className='answer';drawInput();
   const fb=$('#fb');fb.className='feedback note';
   fb.textContent=g.review?'Second look: you missed this one earlier':(p.op==='frac'&&save.ops.frac.c<15?'Answer as a fraction like 7/12':'');
+  hud();
+  const buf=g.buf;g.buf=[];g.buffering=false;
+  for(const k of buf){if(g.locked)break;press(k);}
 }
 function drawInput(){$('#ans').innerHTML=(g.input?g.input.replace('-','−'):'<span class="ph">?</span>')+'<span class="caret"></span>';}
 function press(k){
-  if(!g||g.locked||g.ended)return;
+  if(!g||g.ended)return;
+  if(g.locked){if(g.buffering&&k!=='enter'&&k!=='skip'&&g.buf.length<10)g.buf.push(k);return;}
   if(k==='enter'){submit();return;}
   if(k==='skip'){miss(null);return;}
   let s=g.input;
@@ -783,8 +837,12 @@ function submit(){
 function correct(v){
   const dt=performance.now()-g.t0,op=g.p.op;
   g.locked=true;g.solved++;g.attempts++;g.streak++;g.best=Math.max(g.best,g.streak);
-  const base={easy:1,standard:2,hard:3}[g.diff]+(op==='frac'?1:0);
-  const fast=dt<speedLimit(op,g.diff)?1:0;
+  const L=g.p.level||Math.round(g.lv[op]);
+  const lim=speedLimit(op,L);
+  const base=payFor(L)+(op==='frac'?1:0);
+  const fast=dt<lim?1:0;
+  g.missRun=0;
+  adjustLevel(op,dt<lim*0.6?0.4:dt<lim?0.25:0.05);
   const mult=g.streak>=25?3:g.streak>=10?2:1;
   const earn=(base+fast)*mult;
   g.base+=base;g.speed+=fast;g.mult+=earn-base-fast;g.times.push(dt);
@@ -802,10 +860,12 @@ function correct(v){
   beep(880,.09,'triangle',.07);
   if([10,25,50,100].includes(g.streak)){toast(g.streak+' in a row'+(g.streak===10?' · ×2 carries':g.streak===25?' · ×3 carries':''));if(fxOn('confetti'))burst('bits');beep(1320,.15,'triangle',.06);}
   hud();
-  const run=g;setTimeout(()=>{if(g===run&&!run.ended)next();},notSimple?650:170);
+  g.buf=[];g.buffering=!notSimple;
+  const run=g;setTimeout(()=>{if(g===run&&!run.ended)next();},notSimple?650:110);
 }
 function miss(typed){
-  g.locked=true;g.attempts++;save.life.attempts++;save.ops[g.p.op].a++;
+  g.locked=true;g.buffering=false;g.buf=[];g.attempts++;save.life.attempts++;save.ops[g.p.op].a++;
+  g.missRun++;adjustLevel(g.p.op,typed===null?-0.5:-0.7);if(g.missRun>=2)adjustLevel(g.p.op,-0.4);
   let froze=false;
   if(g.streak>=5&&save.freezes>0){save.freezes--;g.freezesUsed++;froze=true;}
   else g.streak=0;
@@ -827,6 +887,8 @@ function finish(early){
   let streakRecord=false,prevStreak=0;
   if(g.mode==='endless'){prevStreak=save.endless[g.diff]||0;if(g.best>prevStreak&&g.best>=5){save.endless[g.diff]=g.best;streakRecord=true;}}
   const total=earned+boost+pbBonus;
+  g.ops.forEach(o=>{if(g.lv[o]!==undefined)save.levels[g.diff][o]=Math.round(g.lv[o]*100)/100;});
+  const lvSummary=g.ops.map(o=>{const a0=Math.round(g.lv0[o]),a1=Math.round(g.lv[o]);return `<span class="pill${a1>a0?' hot':''}">${OPS[o].sym} Level ${a1}${a1>a0?' ▲':a1<a0?' ▼':''}</span>`;}).join('');
   save.carries+=total;save.totalEarned+=total;
   save.life.bestStreak=Math.max(save.life.bestStreak,g.best);
   const acc=g.attempts?Math.round(g.solved/g.attempts*100):0;
@@ -846,6 +908,7 @@ function finish(early){
       <div class="fact"><b>${avg?fmtMs(avg):'–'}</b><span>Avg per answer</span></div>
       <div class="fact"><b>${g.best}</b><span>Best streak</span></div>
     </div>
+    <div><p class="eyebrow">Where you ended up · ${DIFFS[g.diff]} runs levels ${BANDS[g.diff][0]}–${BANDS[g.diff][1]}</p><div class="boosts">${lvSummary}</div></div>
     <div class="card"><p class="eyebrow">Carries earned</p>
       <table class="ledger"><tbody>
         <tr><td>Correct answers</td><td>+${g.base}</td></tr>
@@ -870,7 +933,7 @@ function closeLayer(){$('#layer').innerHTML='';g=null;unlockScreen();document.ge
 document.addEventListener('click',e=>{
   const t=e.target.closest('button');if(!t)return;
   if(t.dataset.tab){tab=t.dataset.tab;confirmReset=false;exportShown=false;exportMsg='';importMsg='';pendingImport=null;render();window.scrollTo(0,0);return;}
-  if(t.dataset.k){press(t.dataset.k);return;}
+  if(t.dataset.k){if(performance.now()-lastPtr>700)press(t.dataset.k);return;}
   if(t.dataset.g){const a=t.dataset.g;
     if(a==='end')finish(true);
     else if(a==='home')closeLayer();
