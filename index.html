@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Carry the One">
-<meta name="ctone-pwa" content="1.6">
+<meta name="ctone-pwa" content="1.7">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -146,7 +146,7 @@ h2.title{font-family:var(--font-num);font-weight:900;font-size:40px;line-height:
 .pill.lvl.up{border-color:var(--good);color:var(--good)}
 .pill.lvl.down{border-color:var(--bad);color:var(--bad)}
 .stage{flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}
-.problem{font-family:var(--font-num);font-weight:900;color:var(--ink);font-size:clamp(60px,17vw,130px);line-height:1;display:flex;align-items:center;gap:.22em;flex-wrap:nowrap;font-variant-numeric:tabular-nums;white-space:nowrap}
+.problem{max-width:100%;font-family:var(--font-num);font-weight:900;color:var(--ink);font-size:clamp(60px,17vw,130px);line-height:1;display:flex;align-items:center;gap:.22em;flex-wrap:nowrap;font-variant-numeric:tabular-nums;white-space:nowrap}
 .problem .op{font-weight:700;opacity:.85}
 .frac{display:inline-flex;flex-direction:column;align-items:center;font-size:.56em;line-height:1.02}
 .frac span:first-child{border-bottom:.07em solid currentColor;padding-inline:.1em}
@@ -171,9 +171,16 @@ h2.title{font-family:var(--font-num);font-weight:900;font-size:40px;line-height:
 .pad{user-select:none;-webkit-user-select:none;touch-action:manipulation}
 .key.small{font-family:var(--font-body);font-size:14px;font-weight:800;color:var(--muted)}
 .key.enter{grid-column:span 2;background:var(--hl);color:var(--hl-ink);border:2px solid var(--fg);box-shadow:0 3px 0 var(--fg)}
-.key.enter.down{box-shadow:0 0 0 var(--fg);background:var(--hl);filter:brightness(.9)}
+.key.enter{transition:transform .16s cubic-bezier(.3,1.7,.5,1),box-shadow .16s ease-out,opacity .2s}
+.key.enter:not(.ready){opacity:.62}
+.key.enter.ready{animation:ready .9s ease-in-out infinite alternate}
+@keyframes ready{to{box-shadow:0 3px 0 var(--fg),0 0 0 4px color-mix(in srgb,var(--hl) 45%,transparent)}}
+.key.enter.down{animation:none;box-shadow:0 0 0 var(--fg);background:var(--hl);filter:brightness(.9)}
+.stage{min-width:0;width:100%}
+.touch-hint{display:none}
+@media (pointer:coarse){.touch-hint{display:block}}
 .kbd-hint{text-align:center;font-size:12px;color:var(--muted);margin:2px 0 0}
-@media (pointer:coarse){.kbd-hint{display:none}}
+@media (pointer:coarse){.kbd-hint:not(.touch-hint){display:none}}
 
 /* results */
 .results{overflow-y:auto}
@@ -327,8 +334,9 @@ h2.title{font-family:var(--font-num);font-weight:900;font-size:40px;line-height:
 /* ---------- constants ---------- */
 const PB_BONUS=25;
 const GOALS=[25,50,100,200];
-const APP_VERSION='1.6';
+const APP_VERSION='1.7';
 const CHANGELOG=[
+  ['1.7','Oct 9, 2026',['Answers are checked only when you tap Check or press Enter','Check glows when ready, Enter skips past a miss, hold ⌫ to clear, long problems fit the screen']],
   ['1.6','Oct 8, 2026',['Daily target you choose: 25, 50, 100 or 200 correct, with bigger rewards','7-day goal strip and a 14-day practice chart in Stats']],
   ['1.5','Oct 8, 2026',['Fun sounds: chimes that climb with your streak, fanfares, coin clinks','Number keys play notes; Marimba and Arcade sound packs; volume control']],
   ['1.4','Oct 8, 2026',['Keys press down and ripple where you touch them','Each digit pops in as you type it']],
@@ -397,7 +405,7 @@ function freshSave(){return{v:1,updatedAt:0,carries:0,totalEarned:0,
   eq:{skin:'pad',ink:'graphite',sound:'chime',fx:{confetti:true,coins:true}},
   freezes:0,double:false,
   daily:{date:today(),correct:0,claimed:false,streak:0,last:'',goal:100},
-  days:{},
+  days:{},tips:{check:3},
   set:{mode:'sprint',dur:60,count:20,diff:'standard',ops:['add','sub','mul','div'],sound:true,keySounds:true,vol:70,ignoreSilent:false}};}
 function migrate(s){
   const f=freshSave(); if(!s||typeof s!=='object') return f;
@@ -405,6 +413,7 @@ function migrate(s){
     else if(f[k]&&typeof f[k]==='object'&&!Array.isArray(f[k])){ for(const j in f[k]) if(s[k][j]===undefined) s[k][j]=f[k][j]; } }
   for(const o in f.ops) if(!s.ops[o]) s.ops[o]={c:0,a:0,t:0};
   if(!s.set.ops||!s.set.ops.length) s.set.ops=['add'];
+  if(!s.tips||typeof s.tips.check!=='number')s.tips={check:3};
   return s;
 }
 const LS_KEY='carry-the-one-save';
@@ -561,7 +570,7 @@ function gen(op,level){
 }
 function parseAns(s){const m=s.match(/^(-?\d+)(?:\/(\d+))?$/);if(!m)return null;const n=parseInt(m[1],10),d=m[2]===undefined?1:parseInt(m[2],10);if(!d)return null;return{n,d};}
 const eqv=(a,b)=>a.n*b.d===b.n*a.d;
-function speedLimit(op,L){return({add:3000,sub:3500,mul:3500,div:3500,frac:7000}[op])*(0.8+0.15*L);}
+function speedLimit(op,L){return({add:3000,sub:3500,mul:3500,div:3500,frac:7000}[op])*(0.8+0.15*L)+400;}
 const payFor=L=>1+Math.floor((Math.round(L)-1)/3);
 
 /* ---------- sound: everything is synthesized, so it works offline ---------- */
@@ -883,7 +892,7 @@ function startRun(){
   rollDaily();
   const s=save.set;
   g={mode:s.mode,dur:s.dur,target:s.count||20,answered:0,penalty:0,diff:s.diff,ops:[...s.ops],solved:0,attempts:0,streak:0,best:0,base:0,speed:0,mult:0,dailyBonus:0,
-     misses:[],times:[],input:'',locked:true,double:save.double,ended:false,freezesUsed:0,startLife:save.life.correct,p:null,prevText:'',queue:[],count:0,review:false,buf:[],buffering:false,missRun:0,lvNote:null,lv:{},lv0:{}};
+     misses:[],times:[],input:'',locked:true,double:save.double,ended:false,freezesUsed:0,startLife:save.life.correct,p:null,prevText:'',queue:[],count:0,review:false,tok:0,missWait:false,buf:[],buffering:false,missRun:0,lvNote:null,lv:{},lv0:{}};
   g.ops.forEach(o=>{const sv=save.levels[g.diff]&&save.levels[g.diff][o];const v=clampLv(typeof sv==='number'?sv-0.5:BANDS[g.diff][2],g.diff);g.lv[o]=v;g.lv0[o]=v;});
   if(g.double){save.double=false;}
   $('#layer').innerHTML=`<div class="screen" id="game"><div class="screen-in">
@@ -907,6 +916,7 @@ function startRun(){
         return `<button class="${cls}" data-k="${k}" aria-label="${aria}">${lbl}</button>`;}).join('')}
     </div>
     <p class="kbd-hint">Type with your keyboard · Enter to check · Space to skip · Esc to end</p>
+    <p class="kbd-hint touch-hint">Hold ⌫ to clear your answer</p>
   </div></div>`;
   document.getElementById('nav').hidden=true;
   bindPad();lockScreen();hud();
@@ -938,9 +948,12 @@ function bindPad(){
   pad.addEventListener('pointerdown',e=>{
     const b=e.target.closest('.key');if(!b)return;
     e.preventDefault();lastPtr=performance.now();
-    b.classList.add('down');ripple(b,e.clientX,e.clientY);if(e.pointerType==='touch')buzz(6);if(g&&!g.ended&&!(g.locked&&!g.buffering))sfx('key',b.dataset.k);press(b.dataset.k);
+    b.classList.add('down');ripple(b,e.clientX,e.clientY);if(e.pointerType==='touch')buzz(6);if(g&&!g.ended&&(!g.locked||g.buffering||(g.missWait&&b.dataset.k==='enter')))sfx('key',b.dataset.k);press(b.dataset.k);
   });
-  ['pointerup','pointercancel','pointerleave'].forEach(t=>pad.addEventListener(t,up));
+  let holdT=null;
+  pad.addEventListener('pointerdown',e=>{const b=e.target.closest('.key');clearTimeout(holdT);
+    if(b&&b.dataset.k==='back')holdT=setTimeout(()=>{if(g&&!g.locked&&g.input){g.input='';drawInput();sfx('key','back');buzz(15);}},450);});
+  ['pointerup','pointercancel','pointerleave'].forEach(t=>pad.addEventListener(t,()=>{clearTimeout(holdT);up();}));
   pad.addEventListener('contextmenu',e=>e.preventDefault());
 }
 function raceAnswered(){
@@ -989,20 +1002,33 @@ function next(){
   else{g.review=false;const op=pickOp(g.ops);do{p=gen(op,g.lv[op]);}while(p.text===g.prevText&&guard++<10);}
   g.p=p;g.prevText=p.text;g.input='';g.locked=false;g.t0=performance.now();
   $('#prob').innerHTML=p.parts.map(x=>x.t==='s'?`<span class="op">${x.v}</span>`:x.t==='f'?`<span class="frac"><span>${x.n}</span><span>${x.d}</span></span>`:`<span>${neg(x.v)}</span>`).join('');
+  fitProblem();
   const a=$('#ans');a.className='answer';drawInput();
   const fb=$('#fb');fb.className='feedback note';
-  fb.textContent=g.review?'Second look: you missed this one earlier':(p.op==='frac'&&save.ops.frac.c<15?'Answer as a fraction like 7/12':'');
+  const tipLeft=save.tips&&save.tips.check>0;
+  if(tipLeft)save.tips.check--;
+  fb.textContent=tipLeft?'Type your answer, then tap Check (or press Enter)':g.review?'Second look: you missed this one earlier':(p.op==='frac'&&save.ops.frac.c<15?'Answer as a fraction like 7/12':'');
   hud();
   const buf=g.buf;g.buf=[];g.buffering=false;
   for(const k of buf){if(g.locked)break;press(k);}
 }
+function fitProblem(){
+  const el=$('#prob');if(!el)return;el.style.fontSize='';
+  try{const box=el.parentElement.clientWidth,w=el.scrollWidth;
+    if(box&&w>box){const fs=parseFloat(getComputedStyle(el).fontSize);el.style.fontSize=Math.floor(fs*box/w*0.96)+'px';}}catch(e){}
+}
+window.addEventListener('resize',()=>{if(g&&!g.ended&&g.p)fitProblem();});
 function drawInput(pop){
   const t=g.input.replace('-','−');
+  const ek=document.querySelector('.key.enter');if(ek)ek.classList.toggle('ready',!!parseAns(g.input));
   $('#ans').innerHTML=(t?(pop&&!reduceMotion?t.slice(0,-1)+'<span class="new">'+t.slice(-1)+'</span>':t):'<span class="ph">?</span>')+'<span class="caret"></span>';
 }
 function press(k){
   if(!g||g.ended)return;
-  if(g.locked){if(g.buffering&&k!=='enter'&&k!=='skip'&&g.buf.length<10)g.buf.push(k);return;}
+  if(g.locked){
+    if(g.missWait&&k==='enter'&&performance.now()-g.missAt>350){afterMiss();return;}
+    if(g.buffering&&k!=='skip'&&g.buf.length<10&&(k!=='enter'||g.buf.some(x=>/\d/.test(x))))g.buf.push(k);
+    return;}
   if(k==='enter'){submit();return;}
   if(k==='skip'){miss(null);return;}
   let s=g.input;
@@ -1011,11 +1037,11 @@ function press(k){
   else if(k==='/'){if(/\d$/.test(s)&&!s.includes('/'))s+='/';}
   else if(k==='-'){s=s.startsWith('-')?s.slice(1):'-'+s;}
   const grew=s.length>g.input.length;g.input=s;drawInput(grew);
-  const v=parseAns(s);if(v&&eqv(v,g.p.ans))correct(v);
 }
 function submit(){
   const v=parseAns(g.input);
-  if(!v){const a=$('#ans');a.classList.remove('shake');void a.offsetWidth;a.classList.add('shake');return;}
+  if(!v){const a=$('#ans');a.classList.remove('shake');void a.offsetWidth;a.classList.add('shake');
+    const fb=$('#fb');fb.className='feedback note';fb.textContent=g.input?'Finish the fraction, like 7/12':'Type an answer first';return;}
   if(eqv(v,g.p.ans))correct(v);else miss(g.input.replace('-','−'));
 }
 function correct(v){
@@ -1062,9 +1088,16 @@ function miss(typed){
   sfx(typed===null?'skip':'wrong');if(froze)setTimeout(()=>sfx('freeze'),220);buzz(60);
   const done=g.mode==='race'&&raceAnswered();
   hud();
-  const run=g;
-  if(done){setTimeout(()=>{if(g===run&&!run.ended)finish(false);},1100);return;}
-  setTimeout(()=>{if(g===run&&!run.ended)next();},g.mode==='endless'?1100:900);
+  g.missWait=true;g.missAt=performance.now();g.missDone=done;
+  const run=g,tok=++g.tok;
+  setTimeout(()=>{if(g===run&&!run.ended&&g.tok===tok)afterMiss();},done?1100:g.mode==='endless'?1400:1000);
+  const ks=$('.key.enter');if(ks)ks.textContent='Next';
+}
+function afterMiss(){
+  if(!g||!g.missWait)return;
+  g.missWait=false;g.tok++;
+  const ks=$('.key.enter');if(ks)ks.textContent='Check';
+  if(g.missDone)finish(false);else next();
 }
 function finish(early){
   if(!g||g.ended)return;
