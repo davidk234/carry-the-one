@@ -1,0 +1,30 @@
+{
+  "name": "Carry the One",
+  "short_name": "Carry the One",
+  "description": "Mental-math trainer: sprint and endless modes, carries, and a shop.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#E9F0E1",
+  "theme_color": "#E9F0E1",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
