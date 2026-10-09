@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Carry the One">
-<meta name="ctone-pwa" content="1.5">
+<meta name="ctone-pwa" content="1.6">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -268,6 +268,24 @@ h2.title{font-family:var(--font-num);font-weight:900;font-size:40px;line-height:
 
 .ver{margin:28px 0 0;text-align:center;font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.04em}
 .ver b{color:var(--fg)}
+.week-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:10px;font-size:12.5px}
+.days{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.day{display:grid;justify-items:center;gap:4px}
+.day span{font-size:11px;font-weight:800;color:var(--muted)}
+.day i{font-style:normal;width:100%;max-width:38px;aspect-ratio:1;border-radius:9px;border:1.5px dashed var(--line);display:grid;place-items:center;font-size:12px;font-weight:800;color:var(--muted);font-variant-numeric:tabular-nums}
+.day.some i{border-style:solid;background:var(--surface-2);color:var(--fg)}
+.day.met i{border:1.5px solid var(--fg);background:var(--hl);color:var(--hl-ink);font-size:15px}
+.day.today span{color:var(--fg)}
+.day.today i{box-shadow:0 0 0 2px var(--bg),0 0 0 3.5px var(--fg)}
+.goalpick button{display:grid;gap:0;line-height:1.15}
+.goalpick small{font-size:10.5px;font-weight:700;opacity:.7}
+.daily-line{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;font-size:14px}
+.daily-line .bar{height:8px;border-radius:99px;background:var(--surface-2);overflow:hidden;border:1px solid var(--line)}
+.daily-line .bar i{display:block;height:100%;background:var(--fg)}
+.chart-note{margin:6px 2px 0;font-size:12.5px;min-height:18px}
+.bar-g{cursor:pointer}
+.bar-g.sel path{opacity:1;stroke:var(--fg);stroke-width:1.5}
+@media (max-width:380px){.daily-line{grid-template-columns:1fr auto}.daily-line .bar{grid-column:1/-1;grid-row:2}}
 .toast{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 14px);transform:translate(-50%,-20px);opacity:0;z-index:50;background:var(--fg);color:var(--bg);border-radius:12px;padding:10px 16px;font-weight:800;font-size:14px;pointer-events:none;transition:opacity .2s,transform .2s;max-width:calc(100vw - 32px);text-align:center}
 .toast.show{opacity:1;transform:translate(-50%,0)}
 #fx{position:fixed;inset:0;pointer-events:none;z-index:40;width:100%;height:100%}
@@ -307,9 +325,11 @@ h2.title{font-family:var(--font-num);font-weight:900;font-size:40px;line-height:
 (function(){
 "use strict";
 /* ---------- constants ---------- */
-const GOAL=40, GOAL_BONUS=30, PB_BONUS=25;
-const APP_VERSION='1.5';
+const PB_BONUS=25;
+const GOALS=[25,50,100,200];
+const APP_VERSION='1.6';
 const CHANGELOG=[
+  ['1.6','Oct 8, 2026',['Daily target you choose: 25, 50, 100 or 200 correct, with bigger rewards','7-day goal strip and a 14-day practice chart in Stats']],
   ['1.5','Oct 8, 2026',['Fun sounds: chimes that climb with your streak, fanfares, coin clinks','Number keys play notes; Marimba and Arcade sound packs; volume control']],
   ['1.4','Oct 8, 2026',['Keys press down and ripple where you touch them','Each digit pops in as you type it']],
   ['1.3','Oct 8, 2026',['Race mode: a set number of problems, timed, +5s per miss','Version number and this list of updates']],
@@ -376,7 +396,8 @@ function freshSave(){return{v:1,updatedAt:0,carries:0,totalEarned:0,
   owned:{skins:['pad'],inks:['graphite'],fx:[],sounds:['chime']},
   eq:{skin:'pad',ink:'graphite',sound:'chime',fx:{confetti:true,coins:true}},
   freezes:0,double:false,
-  daily:{date:today(),correct:0,claimed:false,streak:0,last:''},
+  daily:{date:today(),correct:0,claimed:false,streak:0,last:'',goal:100},
+  days:{},
   set:{mode:'sprint',dur:60,count:20,diff:'standard',ops:['add','sub','mul','div'],sound:true,keySounds:true,vol:70,ignoreSilent:false}};}
 function migrate(s){
   const f=freshSave(); if(!s||typeof s!=='object') return f;
@@ -458,7 +479,19 @@ function reduce(f){let n=f.n,d=f.d;if(d<0){n=-n;d=-d;}const k=gcd(n,d)||1;return
 function fmt(f){return f.d===1?neg(f.n):neg(f.n)+'/'+f.d;}
 const coinSvg=()=>'<svg class="coin" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="var(--hl)" stroke="var(--fg)" stroke-width="2"/><text x="12" y="16.6" text-anchor="middle" font-size="13" font-weight="800" fill="var(--hl-ink)" font-family="Figtree,system-ui,sans-serif">1</text></svg>';
 function rankFor(n){let r=RANKS[0],next=null;for(let i=0;i<RANKS.length;i++){if(n>=RANKS[i][0]){r=RANKS[i];next=RANKS[i+1]||null;}}return{name:r[1],at:r[0],next};}
-function rollDaily(){const t=today();if(save.daily.date!==t){save.daily.date=t;save.daily.correct=0;save.daily.claimed=false;}}
+function rollDaily(){const t=today();if(save.daily.date!==t){save.daily.date=t;save.daily.correct=0;save.daily.claimed=false;
+  const keys=Object.keys(save.days).sort();while(keys.length>60)delete save.days[keys.shift()];}}
+const goalN=()=>GOALS.includes(save.daily.goal)?save.daily.goal:100;
+const goalBonus=n=>Math.round((n||goalN())*0.6);
+function dayRec(k){return save.days[k]||(save.days[k]={c:0,m:false});}
+function lastDays(n){const out=[];const dt=new Date();dt.setDate(dt.getDate()-(n-1));for(let i=0;i<n;i++){const k=dayKey(dt);out.push({k,date:new Date(dt),r:save.days[k]||{c:0,m:false}});dt.setDate(dt.getDate()+1);}return out;}
+function claimDaily(){
+  const bonus=goalBonus();
+  save.daily.claimed=true;save.carries+=bonus;save.totalEarned+=bonus;if(g)g.dailyBonus=bonus;
+  save.daily.streak=save.daily.last===yesterday()?save.daily.streak+1:(save.daily.last===today()?save.daily.streak:1);
+  save.daily.last=today();dayRec(today()).m=true;
+  toast('Daily goal hit · +'+bonus+' carries');renderPurse();setTimeout(()=>sfx('goal'),350);
+}
 function dayStreak(){const d=save.daily;return(d.last===today()||d.last===yesterday())?d.streak:0;}
 function bestKey(s){return s.dur+'|'+s.diff+'|'+[...s.ops].sort().join('+');}
 function fmtMs(ms){return (ms/1000).toFixed(1)+'s';}
@@ -646,7 +679,7 @@ function render(){
 function homeHTML(){
   rollDaily();
   const s=save.set,d=save.daily,r=rankFor(save.life.correct);
-  const pct=Math.min(1,d.correct/GOAL),C=2*Math.PI*30;
+  const GOAL=goalN(),GB=goalBonus(),pct=Math.min(1,d.correct/GOAL),C=2*Math.PI*30;
   if(!s.count)s.count=20;
   const best=s.mode==='sprint'?(save.bests[bestKey(s)]||0):s.mode==='race'?(save.races[raceKey(s)]||0):(save.endless[s.diff]||0);
   const prog=r.next?Math.round((save.life.correct-r.at)/(r.next[0]-r.at)*100):100;
@@ -677,9 +710,15 @@ function homeHTML(){
         <circle cx="38" cy="38" r="30" fill="none" stroke="${d.claimed?'var(--good)':'var(--fg)'}" stroke-width="9" stroke-linecap="round" stroke-dasharray="${(C*pct).toFixed(1)} ${C.toFixed(1)}" transform="rotate(-90 38 38)"/>
         <text x="38" y="44" text-anchor="middle" font-family="Big Shoulders Display,Arial Narrow,sans-serif" font-weight="900" font-size="20" fill="var(--fg)">${Math.min(d.correct,GOAL)}</text>
       </svg>
-      <div><h3>${d.claimed?'Daily goal done':'Daily goal: '+GOAL+' correct'}</h3>
-        <p>${d.claimed?'+'+GOAL_BONUS+' carries banked. Come back tomorrow.':(GOAL-d.correct)+' to go for +'+GOAL_BONUS+' carries.'}</p>
+      <div style="min-width:0"><h3>${d.claimed?'Daily goal done':'Daily goal: '+GOAL+' correct'}</h3>
+        <p>${d.claimed?'Carries banked for today. Come back tomorrow.':(GOAL-d.correct)+' to go for +'+GB+' carries.'}</p>
         <p><b style="color:var(--fg)">${dayStreak()}</b> day streak</p></div>
+    </div>
+    <div class="card week">
+      <div class="week-h"><p class="eyebrow" style="margin:0">Last 7 days</p><span class="muted">${lastDays(7).filter(x=>x.r.m).length} of 7 goals hit</span></div>
+      <div class="days">${lastDays(7).map((x,i,arr)=>`<div class="day${x.r.m?' met':x.r.c?' some':''}${i===arr.length-1?' today':''}" title="${x.date.toLocaleDateString(undefined,{weekday:'long'})}: ${x.r.c} correct"><span>${x.date.toLocaleDateString(undefined,{weekday:'narrow'})}</span><i>${x.r.m?'✓':x.r.c||''}</i></div>`).join('')}</div>
+      <p class="eyebrow" style="margin:14px 0 6px">Daily target</p>
+      <div class="seg goalpick">${GOALS.map(n=>`<button data-goal="${n}" aria-pressed="${GOAL===n}">${n}<small>+${goalBonus(n)}</small></button>`).join('')}</div>
     </div>
     <div class="card rank">
       <p class="eyebrow">Rank</p>
@@ -726,7 +765,7 @@ function shopHTML(){
         <li>Levels move with you: Warm-up stays in 1–4, Standard in 3–7, Hard in 6–9</li>
         <li><b>+1</b> for a fast answer (the time allowed grows with the level)</li>
         <li>Streaks multiply everything: <b>×2</b> from 10 in a row, <b>×3</b> from 25</li>
-        <li><b>+${GOAL_BONUS}</b> for the daily goal, <b>+${PB_BONUS}</b> for beating a sprint or race record</li>
+        <li><b>+15 to +120</b> for the daily goal, depending on your target, <b>+${PB_BONUS}</b> for beating a sprint or race record</li>
       </ul></div>
     <section class="section"><div class="section-h"><h3>Power-ups</h3><p>Used up when they fire</p></div>
       <div class="grid">
@@ -741,6 +780,29 @@ function shopHTML(){
   </div>`;
 }
 
+function dailyChart(){
+  const days=lastDays(14),G=goalN(),max=Math.max(G,...days.map(x=>x.r.c))*1.15;
+  const W=340,H=160,L=6,R=6,T=20,B=24,cw=(W-L-R)/days.length,bw=Math.max(6,cw-6),base=H-B;
+  const y=v=>base-(v/max)*(base-T);
+  const bars=days.map((x,i)=>{const cx=L+i*cw+cw/2,x0=cx-bw/2,top=y(x.r.c),h=base-top,r=Math.min(4,h);
+    const path=x.r.c?`M${x0},${base} V${top+r} Q${x0},${top} ${x0+r},${top} H${x0+bw-r} Q${x0+bw},${top} ${x0+bw},${top+r} V${base} Z`:'';
+    const isToday=i===days.length-1,lbl=x.date.toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'});
+    return `<g class="bar-g" data-bar="${lbl}: ${x.r.c} correct${x.r.m?' · goal met':''}"><rect x="${L+i*cw}" y="${T-14}" width="${cw}" height="${base-T+14}" fill="transparent"/>${path?`<path d="${path}" fill="${x.r.m?'var(--fg)':'var(--muted)'}" opacity="${x.r.m?1:.45}"/>`:`<rect x="${x0}" y="${base-2}" width="${bw}" height="2" rx="1" fill="var(--line)"/>`}
+      <text x="${cx}" y="${H-8}" text-anchor="middle" font-size="10" font-weight="${isToday?800:600}" fill="${isToday?'var(--fg)':'var(--muted)'}">${x.date.toLocaleDateString(undefined,{weekday:'narrow'})}</text>
+      ${isToday&&x.r.c?`<text x="${cx}" y="${top-5}" text-anchor="middle" font-size="11" font-weight="800" fill="var(--fg)">${x.r.c}</text>`:''}<title>${lbl}: ${x.r.c} correct</title></g>`;}).join('');
+  const gy=y(G);
+  const wk=days.slice(-7),wkTotal=wk.reduce((a,x)=>a+x.r.c,0),best=days.reduce((a,x)=>Math.max(a,x.r.c),0);
+  return `<div class="card" style="padding:12px 12px 10px">
+    <svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Correct answers per day for the last 14 days, with your daily goal of ${G}" style="display:block;font-family:var(--font-body)">
+      <line x1="${L}" x2="${W-R}" y1="${base}" y2="${base}" stroke="var(--line)" stroke-width="1"/>
+      ${bars}
+      <line x1="${L}" x2="${W-R}" y1="${gy}" y2="${gy}" stroke="var(--fg)" stroke-width="1.5" stroke-dasharray="4 4" opacity=".7"/>
+      <text x="${W-R}" y="${gy-5}" text-anchor="end" font-size="10.5" font-weight="800" fill="var(--fg)">Goal ${G}</text>
+    </svg>
+    <p class="chart-note muted" id="chart-note">Tap a bar for that day. Dark bars hit the goal.</p>
+    <div class="facts" style="margin-top:8px"><div class="fact"><b>${wkTotal}</b><span>This week</span></div><div class="fact"><b>${wk.filter(x=>x.r.m).length}/7</b><span>Goals hit</span></div><div class="fact"><b>${best}</b><span>Best day</span></div></div>
+  </div>`;
+}
 let confirmReset=false,exportShown=false,exportMsg='',importText='',importMsg='',pendingImport=null;
 const esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 function encodeSave(){return 'CTO1.'+btoa(unescape(encodeURIComponent(JSON.stringify(save))));}
@@ -776,6 +838,7 @@ function statsHTML(){
       <div class="tile"><b>${L.bestStreak}</b><span>Best streak</span></div>
       <div class="tile"><b>${save.totalEarned.toLocaleString()}</b><span>Carries earned</span></div>
     </div>
+    <section class="section"><div class="section-h"><h3>Daily practice</h3><p>Correct answers per day, last 14 days</p></div>${dailyChart()}</section>
     <section class="section"><div class="section-h"><h3>By operation</h3><p>Average time counts correct answers only</p></div>${table}</section>
     <section class="section"><div class="section-h"><h3>Sprint records</h3></div>${bestHTML}</section>
     <section class="section"><div class="section-h"><h3>Race records</h3><p>Fastest times, misses included</p></div>${raceHTML}</section>
@@ -969,12 +1032,8 @@ function correct(v){
   g.base+=base;g.speed+=fast;g.mult+=earn-base-fast;g.times.push(dt);
   const o=save.ops[op];o.c++;o.a++;o.t+=dt;
   save.life.correct++;save.life.attempts++;
-  save.daily.correct++;
-  if(!save.daily.claimed&&save.daily.correct>=GOAL){
-    save.daily.claimed=true;save.carries+=GOAL_BONUS;save.totalEarned+=GOAL_BONUS;g.dailyBonus=GOAL_BONUS;
-    save.daily.streak=save.daily.last===yesterday()?save.daily.streak+1:(save.daily.last===today()?save.daily.streak:1);
-    save.daily.last=today();toast('Daily goal hit · +'+GOAL_BONUS+' carries');renderPurse();setTimeout(()=>sfx('goal'),350);
-  }
+  save.daily.correct++;dayRec(today()).c=save.daily.correct;
+  if(!save.daily.claimed&&save.daily.correct>=goalN())claimDaily();
   const a=$('#ans');a.className='answer good pop';
   const simp=g.p.ans;const notSimple=v.d!==1&&(v.n!==simp.n||v.d!==simp.d)&&simp.d!==1?` · simplest is ${fmt(simp)}`:(v.d!==1&&simp.d===1?` · that's ${fmt(simp)}`:'');
   const fb=$('#fb');fb.className='feedback good';fb.textContent='✓ +'+(earn*(g.double?2:1))+(fast?' · fast':'')+notSimple;
@@ -1046,6 +1105,7 @@ function finish(early){
       <div class="fact"><b>${avg?fmtMs(avg):'–'}</b><span>Avg per answer</span></div>
       <div class="fact"><b>${g.best}</b><span>Best streak</span></div>
     </div>
+    <div class="daily-line"><span>Today: <b>${save.daily.correct}</b> / ${goalN()} correct</span><span class="bar"><i style="width:${Math.min(100,Math.round(save.daily.correct/goalN()*100))}%"></i></span><span>${save.daily.claimed?'Goal done ✓':(goalN()-save.daily.correct)+' to go'}</span></div>
     <div><p class="eyebrow">Where you ended up · ${DIFFS[g.diff]} runs levels ${BANDS[g.diff][0]}–${BANDS[g.diff][1]}</p><div class="boosts">${lvSummary}</div></div>
     <div class="card"><p class="eyebrow">Carries earned</p>
       <table class="ledger"><tbody>
@@ -1071,6 +1131,8 @@ function closeLayer(){$('#layer').innerHTML='';g=null;unlockScreen();document.ge
 
 /* ---------- events ---------- */
 document.addEventListener('click',e=>{
+  const bar=e.target.closest&&e.target.closest('[data-bar]');
+  if(bar){const n=document.getElementById('chart-note');if(n){n.textContent=bar.getAttribute('data-bar');}document.querySelectorAll('.bar-g.sel').forEach(x=>x.classList.remove('sel'));bar.classList.add('sel');return;}
   const t=e.target.closest('button');if(!t)return;
   if(t.dataset.tab){sfx('tap');tab=t.dataset.tab;confirmReset=false;exportShown=false;exportMsg='';importMsg='';pendingImport=null;render();window.scrollTo(0,0);return;}
   if(t.dataset.k){if(performance.now()-lastPtr>700)press(t.dataset.k);return;}
@@ -1084,6 +1146,7 @@ document.addEventListener('click',e=>{
   if(t.dataset.mode){s.mode=t.dataset.mode;persist();render();return;}
   if(t.dataset.dur){s.dur=+t.dataset.dur;persist();render();return;}
   if(t.dataset.count){s.count=+t.dataset.count;persist();render();return;}
+  if(t.dataset.goal){sfx('tap');rollDaily();save.daily.goal=+t.dataset.goal;if(!save.daily.claimed&&save.daily.correct>=goalN())claimDaily();persist();render();return;}
   if(t.dataset.diff){s.diff=t.dataset.diff;persist();render();return;}
   if(t.dataset.op){const k=t.dataset.op,i=s.ops.indexOf(k);
     if(i>=0){if(s.ops.length===1){toast('Keep at least one operation');return;}s.ops.splice(i,1);}else s.ops.push(k);
