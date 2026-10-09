@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Carry the One">
-<meta name="ctone-pwa" content="1.4">
+<meta name="ctone-pwa" content="1.5">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -258,6 +258,7 @@ h2.title{font-family:var(--font-num);font-weight:900;font-size:40px;line-height:
 .msg.bad{color:var(--bad)} .msg.good{color:var(--good)}
 .setting h4{margin:0;font-size:15px;font-weight:800}
 .setting p{margin:0;font-size:12.5px;color:var(--muted)}
+#vol{width:120px;accent-color:var(--fg)}
 .toggle{width:52px;height:30px;border-radius:99px;border:1.5px solid var(--fg);background:var(--surface-2);position:relative;flex:none}
 .toggle::after{content:"";position:absolute;top:3px;left:3px;width:21px;height:21px;border-radius:50%;background:var(--fg);transition:transform .15s}
 .toggle[aria-pressed="true"]{background:var(--hl)}
@@ -307,8 +308,9 @@ h2.title{font-family:var(--font-num);font-weight:900;font-size:40px;line-height:
 "use strict";
 /* ---------- constants ---------- */
 const GOAL=40, GOAL_BONUS=30, PB_BONUS=25;
-const APP_VERSION='1.4';
+const APP_VERSION='1.5';
 const CHANGELOG=[
+  ['1.5','Oct 8, 2026',['Fun sounds: chimes that climb with your streak, fanfares, coin clinks','Number keys play notes; Marimba and Arcade sound packs; volume control']],
   ['1.4','Oct 8, 2026',['Keys press down and ripple where you touch them','Each digit pops in as you type it']],
   ['1.3','Oct 8, 2026',['Race mode: a set number of problems, timed, +5s per miss','Version number and this list of updates']],
   ['1.2','Oct 8, 2026',['Difficulty adapts within each level range','Keypad responds the instant you touch it']],
@@ -352,6 +354,11 @@ const FX={
   confetti:{name:'Confetti',price:150,desc:'Bursts at streaks of 10, 25 and 50, and on new records.'},
   coins:{name:'Coin Shower',price:200,desc:'Carries rain down on the results screen.'}
 };
+const SOUNDS={
+  chime:{name:'Chime',price:0,desc:'Soft bells. The default.'},
+  marimba:{name:'Marimba',price:120,desc:'Warm wooden notes.'},
+  arcade:{name:'Arcade',price:180,desc:'8-bit bleeps from an old handheld.'}
+};
 const POWER={
   freeze:{name:'Streak Freeze',price:40,desc:'Saves a streak of 5+ from one miss. Holds up to 3.'},
   double:{name:'Double Carries',price:75,desc:'Your next run pays ×2.'}
@@ -366,11 +373,11 @@ function freshSave(){return{v:1,updatedAt:0,carries:0,totalEarned:0,
   life:{correct:0,attempts:0,bestStreak:0},
   ops:{add:{c:0,a:0,t:0},sub:{c:0,a:0,t:0},mul:{c:0,a:0,t:0},div:{c:0,a:0,t:0},frac:{c:0,a:0,t:0}},
   bests:{},endless:{},races:{},levels:{easy:{},standard:{},hard:{}},history:[],
-  owned:{skins:['pad'],inks:['graphite'],fx:[]},
-  eq:{skin:'pad',ink:'graphite',fx:{confetti:true,coins:true}},
+  owned:{skins:['pad'],inks:['graphite'],fx:[],sounds:['chime']},
+  eq:{skin:'pad',ink:'graphite',sound:'chime',fx:{confetti:true,coins:true}},
   freezes:0,double:false,
   daily:{date:today(),correct:0,claimed:false,streak:0,last:''},
-  set:{mode:'sprint',dur:60,count:20,diff:'standard',ops:['add','sub','mul','div'],sound:true}};}
+  set:{mode:'sprint',dur:60,count:20,diff:'standard',ops:['add','sub','mul','div'],sound:true,keySounds:true,vol:70,ignoreSilent:false}};}
 function migrate(s){
   const f=freshSave(); if(!s||typeof s!=='object') return f;
   for(const k in f){ if(s[k]===undefined) s[k]=f[k];
@@ -524,15 +531,72 @@ const eqv=(a,b)=>a.n*b.d===b.n*a.d;
 function speedLimit(op,L){return({add:3000,sub:3500,mul:3500,div:3500,frac:7000}[op])*(0.8+0.15*L);}
 const payFor=L=>1+Math.floor((Math.round(L)-1)/3);
 
-/* ---------- sound ---------- */
-let actx=null;
-function beep(freq,dur,type,vol){
-  if(!save.set.sound)return;
-  try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();
-    const o=actx.createOscillator(),gn=actx.createGain();o.type=type||'sine';o.frequency.value=freq;
-    gn.gain.setValueAtTime(vol||.08,actx.currentTime);gn.gain.exponentialRampToValueAtTime(.0001,actx.currentTime+dur);
-    o.connect(gn).connect(actx.destination);o.start();o.stop(actx.currentTime+dur);}catch(e){}
+/* ---------- sound: everything is synthesized, so it works offline ---------- */
+const SND={ctx:null,out:null,noiseBuf:null};
+const volLevel=()=>{const v=save.set.vol;return (typeof v==='number'?v:70)/100;};
+function applySession(){try{if(navigator.audioSession)navigator.audioSession.type=save.set.ignoreSilent?'playback':'auto';}catch(e){}}
+function audio(){
+  if(!save.set.sound)return null;
+  try{
+    if(!SND.ctx){const C=window.AudioContext||window.webkitAudioContext;if(!C)return null;
+      applySession();SND.ctx=new C();
+      const comp=SND.ctx.createDynamicsCompressor();comp.threshold.value=-14;comp.ratio.value=4;
+      SND.out=SND.ctx.createGain();SND.out.gain.value=volLevel();SND.out.connect(comp);comp.connect(SND.ctx.destination);}
+    if(SND.ctx.state!=='running')SND.ctx.resume();
+    return SND.ctx;
+  }catch(e){return null;}
 }
+function tone(f,o){const c=audio();if(!c)return;o=o||{};
+  const t0=c.currentTime+(o.t||0),dur=o.dur||.15,at=o.attack||.005,v=o.vol||.2;
+  const osc=c.createOscillator(),gn=c.createGain();osc.type=o.type||'sine';osc.frequency.setValueAtTime(f,t0);
+  if(o.to)osc.frequency.exponentialRampToValueAtTime(Math.max(30,o.to),t0+dur);
+  gn.gain.setValueAtTime(.0001,t0);gn.gain.exponentialRampToValueAtTime(v,t0+at);gn.gain.exponentialRampToValueAtTime(.0001,t0+dur);
+  osc.connect(gn);gn.connect(SND.out);osc.start(t0);osc.stop(t0+dur+.03);}
+function noise(o){const c=audio();if(!c)return;o=o||{};
+  if(!SND.noiseBuf){const nb=c.createBuffer(1,Math.floor(c.sampleRate*.5),c.sampleRate),dd=nb.getChannelData(0);for(let i=0;i<dd.length;i++)dd[i]=Math.random()*2-1;SND.noiseBuf=nb;}
+  const t0=c.currentTime+(o.t||0),dur=o.dur||.08;
+  const src=c.createBufferSource();src.buffer=SND.noiseBuf;
+  const fl=c.createBiquadFilter();fl.type=o.filter||'bandpass';fl.frequency.setValueAtTime(o.f||2000,t0);if(o.to)fl.frequency.exponentialRampToValueAtTime(o.to,t0+dur);fl.Q.value=o.q||1.2;
+  const gn=c.createGain();gn.gain.setValueAtTime(.0001,t0);gn.gain.exponentialRampToValueAtTime(o.vol||.15,t0+.004);gn.gain.exponentialRampToValueAtTime(.0001,t0+dur);
+  src.connect(fl);fl.connect(gn);gn.connect(SND.out);src.start(t0);src.stop(t0+dur+.02);}
+/* one melodic note in the voice of the equipped sound pack */
+function voice(f,o){o=o||{};const pk=save.eq.sound||'chime',v=o.vol||.2,dur=o.dur||.15;
+  if(pk==='arcade'){tone(f,Object.assign({},o,{type:'square',vol:v*.42,dur:dur*.8,attack:.002}));return;}
+  if(pk==='marimba'){tone(f,Object.assign({},o,{type:'sine',dur:Math.min(dur*1.2,.3),attack:.002}));tone(f*4,Object.assign({},o,{type:'sine',vol:v*.22,dur:.05,attack:.001}));return;}
+  tone(f,Object.assign({},o,{type:'sine',dur:dur*1.7}));tone(f*2.76,Object.assign({},o,{type:'sine',vol:v*.16,dur:dur*.7}));}
+const PENTA=[0,2,4,7,9];
+const noteOf=(i,base)=>base*Math.pow(2,(PENTA[i%5]+12*Math.floor(i/5))/12);
+const semi=(base,n)=>base*Math.pow(2,n/12);
+const SFX={
+  key(k){if(save.set.keySounds===false)return;
+    if(k==='back'){noise({f:800,dur:.04,vol:.07});return;}
+    if(k==='enter'||k==='skip'){noise({f:1500,dur:.03,vol:.06});return;}
+    const pk=save.eq.sound,i=/\d/.test(k)?+k:5;
+    noise({f:pk==='marimba'?1300:3200,dur:.018,vol:.05,q:2});
+    voice(noteOf(i,pk==='arcade'?523.25:659.25),{vol:.05,dur:.07});},
+  correct(streak,fast){const b=semi(523.25,Math.min(12,Math.floor(streak/5)*2));
+    voice(b,{vol:.15,dur:.11});voice(b*1.5,{t:.07,vol:.15,dur:.2});
+    if(fast){voice(b*3,{t:.15,vol:.05,dur:.07});voice(b*4,{t:.2,vol:.045,dur:.09});}},
+  wrong(){if(save.eq.sound==='arcade'){tone(330,{type:'square',vol:.07,dur:.1});tone(247,{t:.1,type:'square',vol:.07,dur:.1});tone(165,{t:.2,type:'square',vol:.07,dur:.24});return;}
+    tone(220,{type:'triangle',to:110,vol:.24,dur:.34});noise({f:170,filter:'lowpass',dur:.13,vol:.2});},
+  skip(){noise({f:500,to:3200,dur:.24,vol:.08,q:.7});},
+  count(){voice(659.25,{vol:.12,dur:.09});},
+  go(){voice(987.77,{vol:.15,dur:.16});voice(1318.5,{t:.06,vol:.1,dur:.22});},
+  tick(){noise({f:2600,dur:.03,vol:.1,q:5});tone(1500,{vol:.035,dur:.03});},
+  streak(){[0,4,7,12,16].forEach((n,i)=>voice(semi(523.25,n),{t:i*.07,vol:.12,dur:.18}));},
+  levelUp(){voice(783.99,{vol:.07,dur:.07});voice(1046.5,{t:.06,vol:.07,dur:.1});},
+  levelDown(){voice(659.25,{vol:.05,dur:.07});voice(493.88,{t:.06,vol:.05,dur:.1});},
+  freeze(){[2093,1760,1568,1319].forEach((f,i)=>tone(f,{t:i*.05,vol:.05,dur:.28}));},
+  finish(){[0,4,7].forEach(n=>voice(semi(392,n),{vol:.09,dur:.45}));voice(783.99,{t:.12,vol:.12,dur:.45});},
+  record(){[0,4,7,12].forEach((n,i)=>voice(semi(523.25,n),{t:i*.09,vol:.13,dur:.2}));[0,4,7,12].forEach(n=>voice(semi(523.25,n),{t:.42,vol:.07,dur:.7}));},
+  coin(i){tone(1975.5,{t:i*.07,vol:.06,dur:.08});tone(2637,{t:i*.07+.035,vol:.06,dur:.18});},
+  coins(n){for(let i=0;i<Math.max(1,Math.min(8,n));i++)SFX.coin(i);},
+  buy(){noise({f:3600,dur:.06,vol:.08});SFX.coin(1);SFX.coin(2);voice(1046.5,{t:.24,vol:.08,dur:.22});},
+  goal(){[0,2,4,7,9,12].forEach((n,i)=>voice(semi(587.33,n),{t:i*.06,vol:.1,dur:.16}));},
+  tap(){noise({f:2200,dur:.02,vol:.035,q:2});},
+  preview(){SFX.correct(0,true);}
+};
+function sfx(name,...args){try{if(save.set.sound&&SFX[name])SFX[name](...args);}catch(e){}}
 
 /* ---------- effects ---------- */
 const reduceMotion=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -671,6 +735,8 @@ function shopHTML(){
       </div></section>
     <section class="section"><div class="section-h"><h3>Paper</h3><p>Changes the whole app</p></div><div class="grid three">${skins}</div></section>
     <section class="section"><div class="section-h"><h3>Pen</h3><p>Colors the problems and your answers</p></div><div class="inks">${inks}</div></section>
+    <section class="section"><div class="section-h"><h3>Sounds</h3><p>Changes every sound in the app. Tap Equip to hear it.</p></div><div class="grid three">${Object.entries(SOUNDS).map(([k,sd])=>{const eqd=save.eq.sound===k,own=save.owned.sounds.includes(k);
+      return `<div class="item ${eqd?'eq':''}"><h4>${sd.name}</h4><p>${sd.desc}</p>${buyBtn(sd.price,own,eqd,`data-kind="sounds" data-id="${k}"`)}</div>`;}).join('')}</div></section>
     <section class="section"><div class="section-h"><h3>Effects</h3><p>Can be switched off after buying</p></div><div class="grid">${fx}</div></section>
   </div>`;
 }
@@ -718,7 +784,10 @@ function statsHTML(){
       <ul class="list">${CHANGELOG.slice(0,3).map(([v,dt,items])=>`<li style="display:grid;gap:2px;justify-content:stretch"><b>v${v} <span class="muted" style="font-weight:600">· ${dt}</span></b><span class="muted">${items.join(' · ')}</span></li>`).join('')}</ul></section>
     <section class="section"><div class="section-h"><h3>Settings</h3></div>
       <div class="card" style="padding-block:6px">
-        <div class="setting"><div><h4>Sound</h4><p>Short clicks for right and wrong answers</p></div><button class="toggle" data-do="sound" aria-pressed="${save.set.sound}" aria-label="Sound"></button></div>
+        <div class="setting"><div><h4>Sound</h4><p>Chimes, streak fanfares, record jingles and coin clinks</p></div><button class="toggle" data-do="sound" aria-pressed="${save.set.sound}" aria-label="Sound"></button></div>
+        ${save.set.sound?`<div class="setting"><div><h4>Key notes</h4><p>Each number key plays a note as you type</p></div><button class="toggle" data-do="keysounds" aria-pressed="${save.set.keySounds!==false}" aria-label="Key notes"></button></div>
+        <div class="setting"><div><h4>Volume</h4><p>Sound pack: ${SOUNDS[save.eq.sound]?SOUNDS[save.eq.sound].name:'Chime'} · change it in the Shop</p></div><span class="btnrow"><input type="range" id="vol" min="0" max="100" step="5" value="${typeof save.set.vol==='number'?save.set.vol:70}" aria-label="Volume"><button class="buy alt" data-do="testsound">Test</button></span></div>
+        ${navigator.audioSession?`<div class="setting"><div><h4>Play when on silent</h4><p>For iPhone. Sounds play even with the silent switch on, but this pauses music from other apps.</p></div><button class="toggle" data-do="silent" aria-pressed="${!!save.set.ignoreSilent}" aria-label="Play when on silent"></button></div>`:''}`:''}
         <div class="setting"><div><h4>Progress</h4><p>${syncText}</p></div></div>
         <div class="setting col"><div><h4>Move progress between devices</h4><p>Copy a save code here, then paste it into Carry the One on your other device.</p></div>
           <div class="btnrow"><button class="buy alt" data-do="export">Copy save code</button>${exportMsg?`<span class="msg good">${exportMsg}</span>`:''}</div>
@@ -785,8 +854,8 @@ function startRun(){
     let n=3;
     const step=()=>{
       if(g!==run||run.ended)return;
-      if(n>0){$('#prob').innerHTML=`<span class="count">${n}</span>`;$('#ans').innerHTML='';$('#fb').textContent=n===3?'Get ready':'';beep(520,.07,'triangle',.05);n--;setTimeout(step,reduceMotion?350:560);}
-      else{beep(1040,.1,'triangle',.06);run.startT=performance.now();run.endAt=run.startT+run.dur*1000;next();tick();}
+      if(n>0){$('#prob').innerHTML=`<span class="count">${n}</span>`;$('#ans').innerHTML='';$('#fb').textContent=n===3?'Get ready':'';sfx('count');n--;setTimeout(step,reduceMotion?350:560);}
+      else{sfx('go');run.startT=performance.now();run.endAt=run.startT+run.dur*1000;next();tick();}
     };
     step();
   } else {$('#clock').innerHTML='<span style="font-size:22px">Endless</span>';next();}
@@ -806,7 +875,7 @@ function bindPad(){
   pad.addEventListener('pointerdown',e=>{
     const b=e.target.closest('.key');if(!b)return;
     e.preventDefault();lastPtr=performance.now();
-    b.classList.add('down');ripple(b,e.clientX,e.clientY);if(e.pointerType==='touch')buzz(6);press(b.dataset.k);
+    b.classList.add('down');ripple(b,e.clientX,e.clientY);if(e.pointerType==='touch')buzz(6);if(g&&!g.ended&&!(g.locked&&!g.buffering))sfx('key',b.dataset.k);press(b.dataset.k);
   });
   ['pointerup','pointercancel','pointerleave'].forEach(t=>pad.addEventListener(t,up));
   pad.addEventListener('contextmenu',e=>e.preventDefault());
@@ -821,7 +890,7 @@ function adjustLevel(op,delta){
   const old=g.lv[op];if(old===undefined)return;
   const nv=clampLv(old+delta,g.diff);g.lv[op]=nv;
   const oi=Math.round(old),ni=Math.round(nv);
-  if(ni!==oi)g.lvNote={op,dir:ni>oi?1:-1,until:g.count+2};
+  if(ni!==oi){g.lvNote={op,dir:ni>oi?1:-1,until:g.count+2};setTimeout(()=>sfx(ni>oi?'levelUp':'levelDown'),300);}
 }
 function tick(){
   if(!g||g.ended)return;
@@ -833,6 +902,7 @@ function tick(){
   if(rem<=0){finish(false);return;}
   const sec=Math.ceil(rem/1000),c=$('#clock');
   c.textContent=Math.floor(sec/60)+':'+pad2(sec%60);c.classList.toggle('low',sec<=10);
+  if(sec<=5&&sec!==g.lastSec){g.lastSec=sec;sfx('tick');}
   const b=$('#tbar');if(b)b.style.transform='scaleX('+(rem/(g.dur*1000))+')';
   rafId=requestAnimationFrame(tick);
 }
@@ -903,13 +973,13 @@ function correct(v){
   if(!save.daily.claimed&&save.daily.correct>=GOAL){
     save.daily.claimed=true;save.carries+=GOAL_BONUS;save.totalEarned+=GOAL_BONUS;g.dailyBonus=GOAL_BONUS;
     save.daily.streak=save.daily.last===yesterday()?save.daily.streak+1:(save.daily.last===today()?save.daily.streak:1);
-    save.daily.last=today();toast('Daily goal hit · +'+GOAL_BONUS+' carries');renderPurse();
+    save.daily.last=today();toast('Daily goal hit · +'+GOAL_BONUS+' carries');renderPurse();setTimeout(()=>sfx('goal'),350);
   }
   const a=$('#ans');a.className='answer good pop';
   const simp=g.p.ans;const notSimple=v.d!==1&&(v.n!==simp.n||v.d!==simp.d)&&simp.d!==1?` · simplest is ${fmt(simp)}`:(v.d!==1&&simp.d===1?` · that's ${fmt(simp)}`:'');
   const fb=$('#fb');fb.className='feedback good';fb.textContent='✓ +'+(earn*(g.double?2:1))+(fast?' · fast':'')+notSimple;
-  beep(880,.09,'triangle',.07);
-  if([10,25,50,100].includes(g.streak)){toast(g.streak+' in a row'+(g.streak===10?' · ×2 carries':g.streak===25?' · ×3 carries':''));if(fxOn('confetti'))burst('bits');beep(1320,.15,'triangle',.06);}
+  sfx('correct',g.streak,!!fast);
+  if([10,25,50,100].includes(g.streak)){toast(g.streak+' in a row'+(g.streak===10?' · ×2 carries':g.streak===25?' · ×3 carries':''));if(fxOn('confetti'))burst('bits');setTimeout(()=>sfx('streak'),180);}
   hud();
   const done=g.mode==='race'&&raceAnswered();
   hud();
@@ -930,7 +1000,7 @@ function miss(typed){
   const a=$('#ans');a.className='answer bad';a.innerHTML=fmt(g.p.ans);
   if(g.mode==='race')g.penalty+=RACE_PENALTY;
   const fb=$('#fb');fb.className='feedback bad';fb.textContent=(typed?'✗ You wrote '+typed+'. ':'Skipped. ')+'Answer: '+fmt(g.p.ans)+(g.mode==='race'?' · +5s':'')+(froze?' · freeze saved your streak':'');
-  beep(196,.18,'square',.04);buzz(60);
+  sfx(typed===null?'skip':'wrong');if(froze)setTimeout(()=>sfx('freeze'),220);buzz(60);
   const done=g.mode==='race'&&raceAnswered();
   hud();
   const run=g;
@@ -991,6 +1061,8 @@ function finish(early){
     <div class="row2"><button class="ghost" data-g="home">Done</button><button class="go" data-g="again">Again</button></div>
   </div></div>`;
   g=null;resultsAt=Date.now();
+  sfx(pb||streakRecord||r0!==r1?'record':'finish');
+  if(total>0)setTimeout(()=>sfx('coins',Math.ceil(total/12)),pb||streakRecord?1100:650);
   if(fxOn('coins'))setTimeout(()=>burst('coins'),250);
   if((pb||streakRecord)&&fxOn('confetti'))burst('bits');
   renderPurse();
@@ -1000,13 +1072,14 @@ function closeLayer(){$('#layer').innerHTML='';g=null;unlockScreen();document.ge
 /* ---------- events ---------- */
 document.addEventListener('click',e=>{
   const t=e.target.closest('button');if(!t)return;
-  if(t.dataset.tab){tab=t.dataset.tab;confirmReset=false;exportShown=false;exportMsg='';importMsg='';pendingImport=null;render();window.scrollTo(0,0);return;}
+  if(t.dataset.tab){sfx('tap');tab=t.dataset.tab;confirmReset=false;exportShown=false;exportMsg='';importMsg='';pendingImport=null;render();window.scrollTo(0,0);return;}
   if(t.dataset.k){if(performance.now()-lastPtr>700)press(t.dataset.k);return;}
   if(t.dataset.g){const a=t.dataset.g;
     if(a==='end')finish(true);
     else if(a==='home')closeLayer();
     else if(a==='again'){$('#layer').innerHTML='';startRun();}
     return;}
+  if(t.dataset.mode||t.dataset.dur||t.dataset.count||t.dataset.diff||t.dataset.op||t.dataset.tab===undefined&&t.dataset.act)sfx('tap');
   const s=save.set;
   if(t.dataset.mode){s.mode=t.dataset.mode;persist();render();return;}
   if(t.dataset.dur){s.dur=+t.dataset.dur;persist();render();return;}
@@ -1017,17 +1090,20 @@ document.addEventListener('click',e=>{
     s.ops.sort((a,b)=>Object.keys(OPS).indexOf(a)-Object.keys(OPS).indexOf(b));persist();render();return;}
   if(t.dataset.act==='start'){startRun();return;}
   const d=t.dataset.do;if(!d)return;
-  if(d==='buy'){const kind=t.dataset.kind,id=t.dataset.id,item=(kind==='skins'?SKINS:kind==='inks'?INKS:FX)[id];
+  if(d==='buy'){const kind=t.dataset.kind,id=t.dataset.id,item=(kind==='skins'?SKINS:kind==='inks'?INKS:kind==='sounds'?SOUNDS:FX)[id];
     if(save.carries<item.price)return;save.carries-=item.price;save.owned[kind].push(id);
-    if(kind==='skins')save.eq.skin=id;else if(kind==='inks')save.eq.ink=id;else save.eq.fx[id]=true;
-    persist();applyLook();render();toast(item.name+' unlocked');beep(1046,.12,'triangle',.06);
+    if(kind==='skins')save.eq.skin=id;else if(kind==='inks')save.eq.ink=id;else if(kind==='sounds')save.eq.sound=id;else save.eq.fx[id]=true;
+    persist();applyLook();render();toast(item.name+' unlocked');sfx('buy');if(kind==='sounds')setTimeout(()=>sfx('preview'),700);
     if(kind==='fx'){burst(id==='coins'?'coins':'bits');}return;}
-  if(d==='equip'){const kind=t.dataset.kind,id=t.dataset.id;if(kind==='skins')save.eq.skin=id;else save.eq.ink=id;persist();applyLook();render();return;}
+  if(d==='equip'){const kind=t.dataset.kind,id=t.dataset.id;if(kind==='skins')save.eq.skin=id;else if(kind==='sounds')save.eq.sound=id;else save.eq.ink=id;persist();applyLook();render();sfx(kind==='sounds'?'preview':'tap');return;}
   if(d==='togglefx'){const id=t.dataset.id;save.eq.fx[id]=!save.eq.fx[id];persist();render();return;}
   if(d==='power'){const id=t.dataset.id,item=POWER[id];if(save.carries<item.price)return;
     if(id==='freeze'){if(save.freezes>=3)return;save.freezes++;}else{if(save.double)return;save.double=true;}
-    save.carries-=item.price;persist();render();toast(item.name+' ready');return;}
-  if(d==='sound'){save.set.sound=!save.set.sound;persist();render();return;}
+    save.carries-=item.price;persist();render();toast(item.name+' ready');sfx('buy');return;}
+  if(d==='sound'){save.set.sound=!save.set.sound;persist();render();if(save.set.sound)sfx('preview');return;}
+  if(d==='keysounds'){save.set.keySounds=save.set.keySounds===false;persist();render();if(save.set.keySounds)sfx('key','7');return;}
+  if(d==='silent'){save.set.ignoreSilent=!save.set.ignoreSilent;applySession();persist();render();sfx('preview');return;}
+  if(d==='testsound'){sfx('record');return;}
   if(d==='export'){
     const code=encodeSave();exportMsg='';
     const done=()=>{exportShown=false;exportMsg='Copied';render();setTimeout(()=>{if(exportMsg==='Copied'){exportMsg='';if(tab==='stats'&&!g)render();}},2500);};
@@ -1042,6 +1118,8 @@ document.addEventListener('click',e=>{
   if(d==='reset-no'){confirmReset=false;render();return;}
   if(d==='reset-yes'){confirmReset=false;save=freshSave();persist();applyLook();render();toast('Progress erased');return;}
 });
+document.addEventListener('input',e=>{if(e.target&&e.target.id==='vol'){save.set.vol=+e.target.value;if(SND.out)SND.out.gain.value=volLevel();}});
+document.addEventListener('change',e=>{if(e.target&&e.target.id==='vol'){persist();sfx('preview');}});
 document.addEventListener('input',e=>{if(e.target&&e.target.id==='import-code'){importText=e.target.value;if(importMsg){importMsg='';}}});
 document.addEventListener('keydown',e=>{
   if(e.metaKey||e.ctrlKey||e.altKey)return;
@@ -1054,7 +1132,7 @@ document.addEventListener('keydown',e=>{
     else if(e.key==='Enter')k='enter';
     else if(e.key===' ')k='skip';
     else if(e.key==='Escape'){e.preventDefault();finish(true);return;}
-    if(k){e.preventDefault();if(e.repeat&&(k==='enter'||k==='skip'))return;press(k);
+    if(k){e.preventDefault();if(e.repeat&&(k==='enter'||k==='skip'))return;if(!(g.locked&&!g.buffering))sfx('key',k);press(k);
       const b=document.querySelector(`.key[data-k="${k}"]`);if(b){b.classList.add('down');ripple(b);setTimeout(()=>b.classList.remove('down'),110);}}
     return;
   }
