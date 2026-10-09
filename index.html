@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Carry the One">
-<meta name="ctone-pwa" content="1.3">
+<meta name="ctone-pwa" content="1.4">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -161,12 +161,17 @@ h2.title{font-family:var(--font-num);font-weight:900;font-size:40px;line-height:
 .feedback{min-height:24px;font-weight:800;font-size:15px;text-align:center}
 .feedback.good{color:var(--good)} .feedback.bad{color:var(--bad)}
 .pad{width:100%;max-width:420px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
-.key{height:clamp(50px,8.4vh,66px);border:1.5px solid var(--line);background:var(--surface);border-radius:14px;font-family:var(--font-num);font-weight:800;font-size:32px;box-shadow:0 3px 0 var(--line);touch-action:manipulation;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;transition:none}
-.key.down{transform:translateY(2px);box-shadow:0 1px 0 var(--line);background:var(--surface-2)}
+.key{position:relative;overflow:hidden;isolation:isolate;height:clamp(50px,8.4vh,66px);border:1.5px solid var(--line);background:var(--surface);border-radius:14px;font-family:var(--font-num);font-weight:800;font-size:32px;box-shadow:0 3px 0 var(--line);touch-action:manipulation;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;transition:transform .16s cubic-bezier(.3,1.7,.5,1),box-shadow .16s ease-out,background-color .25s ease-out,border-color .25s ease-out}
+.key.down{transform:translateY(3px) scale(.94);box-shadow:0 0 0 var(--line);background:var(--surface-2);border-color:var(--fg);transition:none}
+.ripple{position:absolute;border-radius:50%;pointer-events:none;background:var(--fg);opacity:.24;transform:scale(0);animation:ripple .45s ease-out forwards;z-index:-1}
+.key.enter .ripple{background:var(--hl-ink);opacity:.3}
+@keyframes ripple{to{transform:scale(1);opacity:0}}
+.answer .new{display:inline-block;animation:typed .2s ease-out}
+@keyframes typed{from{transform:translateY(-.14em) scale(1.3);opacity:.35}}
 .pad{user-select:none;-webkit-user-select:none;touch-action:manipulation}
 .key.small{font-family:var(--font-body);font-size:14px;font-weight:800;color:var(--muted)}
 .key.enter{grid-column:span 2;background:var(--hl);color:var(--hl-ink);border:2px solid var(--fg);box-shadow:0 3px 0 var(--fg)}
-.key.enter.down{box-shadow:0 1px 0 var(--fg);background:var(--hl);filter:brightness(.92)}
+.key.enter.down{box-shadow:0 0 0 var(--fg);background:var(--hl);filter:brightness(.9)}
 .kbd-hint{text-align:center;font-size:12px;color:var(--muted);margin:2px 0 0}
 @media (pointer:coarse){.kbd-hint{display:none}}
 
@@ -302,8 +307,9 @@ h2.title{font-family:var(--font-num);font-weight:900;font-size:40px;line-height:
 "use strict";
 /* ---------- constants ---------- */
 const GOAL=40, GOAL_BONUS=30, PB_BONUS=25;
-const APP_VERSION='1.3';
+const APP_VERSION='1.4';
 const CHANGELOG=[
+  ['1.4','Oct 8, 2026',['Keys press down and ripple where you touch them','Each digit pops in as you type it']],
   ['1.3','Oct 8, 2026',['Race mode: a set number of problems, timed, +5s per miss','Version number and this list of updates']],
   ['1.2','Oct 8, 2026',['Difficulty adapts within each level range','Keypad responds the instant you touch it']],
   ['1.1','Oct 8, 2026',['Missed problems come back for a second look','Sprint countdown, save codes, works offline']],
@@ -786,13 +792,21 @@ function startRun(){
   } else {$('#clock').innerHTML='<span style="font-size:22px">Endless</span>';next();}
 }
 let lastPtr=0;
+function ripple(b,x,y){
+  if(reduceMotion||!b)return;
+  const r=b.getBoundingClientRect(),dd=Math.max(r.width,r.height)*2.2;
+  const cx=(x==null?r.left+r.width/2:x)-r.left,cy=(y==null?r.top+r.height/2:y)-r.top;
+  const sp=document.createElement('span');sp.className='ripple';
+  sp.style.width=sp.style.height=dd+'px';sp.style.left=(cx-dd/2)+'px';sp.style.top=(cy-dd/2)+'px';
+  b.appendChild(sp);const kill=()=>sp.remove();sp.addEventListener('animationend',kill);setTimeout(kill,800);
+}
 function bindPad(){
   const pad=$('#pad');if(!pad)return;
   const up=()=>pad.querySelectorAll('.key.down').forEach(b=>b.classList.remove('down'));
   pad.addEventListener('pointerdown',e=>{
     const b=e.target.closest('.key');if(!b)return;
     e.preventDefault();lastPtr=performance.now();
-    b.classList.add('down');press(b.dataset.k);
+    b.classList.add('down');ripple(b,e.clientX,e.clientY);if(e.pointerType==='touch')buzz(6);press(b.dataset.k);
   });
   ['pointerup','pointercancel','pointerleave'].forEach(t=>pad.addEventListener(t,up));
   pad.addEventListener('contextmenu',e=>e.preventDefault());
@@ -849,7 +863,10 @@ function next(){
   const buf=g.buf;g.buf=[];g.buffering=false;
   for(const k of buf){if(g.locked)break;press(k);}
 }
-function drawInput(){$('#ans').innerHTML=(g.input?g.input.replace('-','−'):'<span class="ph">?</span>')+'<span class="caret"></span>';}
+function drawInput(pop){
+  const t=g.input.replace('-','−');
+  $('#ans').innerHTML=(t?(pop&&!reduceMotion?t.slice(0,-1)+'<span class="new">'+t.slice(-1)+'</span>':t):'<span class="ph">?</span>')+'<span class="caret"></span>';
+}
 function press(k){
   if(!g||g.ended)return;
   if(g.locked){if(g.buffering&&k!=='enter'&&k!=='skip'&&g.buf.length<10)g.buf.push(k);return;}
@@ -860,7 +877,7 @@ function press(k){
   else if(k==='back')s=s.slice(0,-1);
   else if(k==='/'){if(/\d$/.test(s)&&!s.includes('/'))s+='/';}
   else if(k==='-'){s=s.startsWith('-')?s.slice(1):'-'+s;}
-  g.input=s;drawInput();
+  const grew=s.length>g.input.length;g.input=s;drawInput(grew);
   const v=parseAns(s);if(v&&eqv(v,g.p.ans))correct(v);
 }
 function submit(){
@@ -1038,7 +1055,7 @@ document.addEventListener('keydown',e=>{
     else if(e.key===' ')k='skip';
     else if(e.key==='Escape'){e.preventDefault();finish(true);return;}
     if(k){e.preventDefault();if(e.repeat&&(k==='enter'||k==='skip'))return;press(k);
-      const b=document.querySelector(`.key[data-k="${k}"]`);if(b){b.classList.add('down');setTimeout(()=>b.classList.remove('down'),90);}}
+      const b=document.querySelector(`.key[data-k="${k}"]`);if(b){b.classList.add('down');ripple(b);setTimeout(()=>b.classList.remove('down'),110);}}
     return;
   }
   if($('#layer').innerHTML&&(e.key==='Enter'||e.key==='Escape')){e.preventDefault();if(Date.now()-resultsAt<900||e.repeat)return;e.key==='Enter'?($('#layer').innerHTML='',startRun()):closeLayer();}
