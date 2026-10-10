@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Carry the One">
-<meta name="ctone-pwa" content="1.7">
+<meta name="ctone-pwa" content="1.8">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -293,6 +293,54 @@ h2.title{font-family:var(--font-num);font-weight:900;font-size:40px;line-height:
 .bar-g{cursor:pointer}
 .bar-g.sel path{opacity:1;stroke:var(--fg);stroke-width:1.5}
 @media (max-width:380px){.daily-line{grid-template-columns:1fr auto}.daily-line .bar{grid-column:1/-1;grid-row:2}}
+.top-right{display:flex;align-items:center;gap:8px;min-width:0}
+.rank-chip{display:inline-flex;align-items:center;gap:6px;border:0;background:transparent;padding:0;font-weight:800;font-size:14px;color:var(--fg)}
+.rank-chip span{display:none}
+@media (min-width:600px){.rank-chip span{display:inline}}
+.emblem{display:block;flex:none;overflow:visible}
+.rankcard .rk-top{display:flex;gap:14px;align-items:center}
+.rk-note{margin:8px 0 0!important;font-size:12.5px!important}
+.small-go{min-height:54px;font-size:24px;margin-top:14px}
+.ladder{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.rung{display:grid;justify-items:center;align-content:start;gap:3px;text-align:center;padding:10px 4px 9px;border:1.5px solid var(--line);border-radius:14px;background:var(--surface);min-width:0}
+.rung b{font-size:12.5px;font-weight:800;line-height:1.15}
+.rung span{font-size:10.5px;color:var(--muted);font-weight:700;font-variant-numeric:tabular-nums}
+.rung small{font-size:10.5px;font-weight:800;color:var(--fg)}
+.rung small.got{color:var(--muted)}
+.rung.locked .emblem{filter:grayscale(1);opacity:.4}
+.rung.cur{border-color:var(--fg);box-shadow:0 3px 0 var(--fg);background:var(--surface-2)}
+.chal p{margin:6px 0 12px;font-size:13.5px;color:var(--muted)}
+.chal-h{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.chal-h .eyebrow{margin:0}
+.chal-score{display:flex;align-items:baseline;gap:10px;margin:10px 0 10px}
+.chal-score b{font-size:46px;font-weight:900;line-height:1;color:var(--ink)}
+.chal-score span{color:var(--muted);font-weight:700}
+.egrid{display:grid;grid-template-columns:repeat(10,1fr);gap:4px;max-width:280px}
+.egrid i{aspect-ratio:1;border-radius:4px;background:var(--good)}
+.egrid i.no{background:var(--bad)}
+.rk-panel{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;background:var(--surface);border:1.5px solid var(--line);border-radius:16px;padding:12px 14px}
+.rk-panel p{margin:2px 0 0;font-size:13px}
+.rk-panel .bar{height:8px;border-radius:99px;background:var(--surface-2);overflow:hidden;margin-top:8px;border:1px solid var(--line)}
+.rk-panel .bar i{display:block;height:100%;background:var(--fg)}
+.delta{font-weight:800;margin-left:8px;font-variant-numeric:tabular-nums}
+.delta.up{color:var(--good)} .delta.down{color:var(--bad)}
+.placed{display:flex;gap:16px;align-items:center}
+.placed .lbl{font-weight:700;color:var(--muted);font-size:14px}
+.rank-name.big{font-size:46px;margin:2px 0 6px}
+.promo{position:fixed;inset:0;z-index:30;border:0;display:grid;place-items:center;padding:24px;background:var(--bg);background:color-mix(in srgb,var(--bg) 93%,transparent);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);color:var(--fg);cursor:pointer;animation:fadein .25s ease-out}
+.promo-in{display:grid;justify-items:center;gap:10px;text-align:center}
+.promo .emblem{animation:promo .9s cubic-bezier(.2,1.5,.4,1) both;filter:drop-shadow(0 8px 0 var(--shade))}
+.promo .eyebrow{margin:6px 0 0;font-size:13px}
+.promo-t{font-family:var(--font-num);font-weight:900;font-size:56px;line-height:.95;text-transform:uppercase;text-wrap:balance}
+.promo-r{display:inline-flex;align-items:center;gap:8px;font-weight:800;font-size:18px;background:var(--hl);color:var(--hl-ink);border:2px solid var(--fg);border-radius:99px;padding:6px 14px}
+@keyframes promo{0%{transform:scale(.15) rotate(-30deg);opacity:0}60%{opacity:1}100%{transform:none}}
+@keyframes fadein{from{opacity:0}}
+.stats-head{display:flex;align-items:center;gap:12px}
+.seg.mini button{padding:7px 4px;font-family:var(--font-num);font-size:20px;font-weight:900}
+.buy.lock{display:inline-flex;align-items:center;gap:6px}
+.buy.lock .emblem{filter:grayscale(.2)}
+.list b .delta{font-size:12.5px}
+@media (max-width:380px){.ladder{grid-template-columns:repeat(2,1fr)}.rk-panel{grid-template-columns:auto 1fr}.rk-panel .buy{grid-column:1/-1}}
 .toast{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 14px);transform:translate(-50%,-20px);opacity:0;z-index:50;background:var(--fg);color:var(--bg);border-radius:12px;padding:10px 16px;font-weight:800;font-size:14px;pointer-events:none;transition:opacity .2s,transform .2s;max-width:calc(100vw - 32px);text-align:center}
 .toast.show{opacity:1;transform:translate(-50%,0)}
 #fx{position:fixed;inset:0;pointer-events:none;z-index:40;width:100%;height:100%}
@@ -307,7 +355,7 @@ h2.title{font-family:var(--font-num);font-weight:900;font-size:40px;line-height:
 <div class="app" id="app">
   <header class="top">
     <h1 class="wordmark">Carry the One<sup>1</sup></h1>
-    <span class="purse" id="purse" aria-label="Carries balance"></span>
+    <div class="top-right"><button class="rank-chip" id="rankchip" data-tab="stats" aria-label="Your rank"></button><span class="purse" id="purse" aria-label="Carries balance"></span></div>
   </header>
   <main id="main"></main>
   <p class="ver" id="ver"></p>
@@ -334,8 +382,9 @@ h2.title{font-family:var(--font-num);font-weight:900;font-size:40px;line-height:
 /* ---------- constants ---------- */
 const PB_BONUS=25;
 const GOALS=[25,50,100,200];
-const APP_VERSION='1.7';
+const APP_VERSION='1.8';
 const CHANGELOG=[
+  ['1.8','Oct 10, 2026',['Ranked tiers from Bronze to Champion, with rewards and rank-locked items','Placement test, Daily Challenge, speed-over-time chart, plus fixes']],
   ['1.7','Oct 9, 2026',['Answers are checked only when you tap Check or press Enter','Check glows when ready, Enter skips past a miss, hold ⌫ to clear, long problems fit the screen']],
   ['1.6','Oct 8, 2026',['Daily target you choose: 25, 50, 100 or 200 correct, with bigger rewards','7-day goal strip and a 14-day practice chart in Stats']],
   ['1.5','Oct 8, 2026',['Fun sounds: chimes that climb with your streak, fanfares, coin clinks','Number keys play notes; Marimba and Arcade sound packs; volume control']],
@@ -349,7 +398,18 @@ const IS_PWA=!!document.querySelector('meta[name="ctone-pwa"]');
 const OPS={add:{sym:'+',label:'Add'},sub:{sym:'−',label:'Sub'},mul:{sym:'×',label:'Mult'},div:{sym:'÷',label:'Div'},frac:{sym:'a/b',label:'Frac'}};
 const OP_NAMES={add:'Addition',sub:'Subtraction',mul:'Multiplication',div:'Division',frac:'Fractions'};
 const DIFFS={easy:'Warm-up',standard:'Standard',hard:'Hard'};
-const RANKS=[[0,'Tally Mark'],[100,'Abacus'],[300,'Slide Rule'],[750,'Pocket Calculator'],[1500,'Mainframe'],[3000,'Gauss']];
+/* Competitive ranks. Bronze-Diamond have three divisions (III, II, I) of 100 RR each. */
+const TIERS=[
+  {id:'bronze',name:'Bronze',min:0,divs:true,a:'#F0B27A',b:'#A0602E',glyph:'+',reward:0},
+  {id:'silver',name:'Silver',min:300,divs:true,a:'#F4F7FA',b:'#8E9AA8',glyph:'−',reward:100},
+  {id:'gold',name:'Gold',min:600,divs:true,a:'#FFE27A',b:'#D08F12',glyph:'×',reward:200},
+  {id:'platinum',name:'Platinum',min:900,divs:true,a:'#A8F2E6',b:'#23998A',glyph:'÷',reward:300},
+  {id:'diamond',name:'Diamond',min:1200,divs:true,a:'#BEE6FF',b:'#2E73D6',glyph:'',reward:500},
+  {id:'master',name:'Master',min:1500,divs:false,a:'#DDC2FF',b:'#6A3BC8',glyph:'π',reward:800},
+  {id:'grandmaster',name:'Grandmaster',min:1800,divs:false,a:'#FFB0A3',b:'#B8302C',glyph:'Σ',reward:1200},
+  {id:'champion',name:'Champion',min:2200,divs:false,a:'#FFF0A0',b:'#E8860A',glyph:'∞',reward:2000}
+];
+const PLACEMENT_CAP=1450;
 const SKINS={
   pad:{name:'Engineering Pad',price:0,desc:'Green grid. Follows your light or dark setting.',
     p:{bg:'#E9F0E1',grid:'#D5E3C8',gridv:'#D5E3C8',major:'#BCD2A9',majorv:'#BCD2A9',fg:'#1C2920',hl:'#FFD12E'}},
@@ -362,12 +422,18 @@ const SKINS={
   blueprint:{name:'Blueprint',price:300,dark:true,desc:'Drafting-table blue with cyan callouts.',
     vars:{bg:'#0F3766','grid-h':'#174580','grid-v':'#174580','major-h':'#2A5D9C','major-v':'#2A5D9C',fg:'#EAF2FF',muted:'#A9C1E4',surface:'#13406F','surface-2':'#1A4C88',line:'#2E62A3',hl:'#7FE0FF','hl-ink':'#0B2A50',good:'#7EE3A6',bad:'#FF9A9A',shade:'rgba(0,0,0,.35)'},
     p:{bg:'#0F3766',grid:'#174580',gridv:'#174580',major:'#2A5D9C',majorv:'#2A5D9C',fg:'#EAF2FF',hl:'#2f7fae'}},
-  ledger:{name:'Midnight Ledger',price:450,dark:true,desc:'Plum-black accounting paper, gold ink marks.',
+  ledger:{name:'Midnight Ledger',price:450,rank:2,dark:true,desc:'Plum-black accounting paper, gold ink marks.',
     vars:{bg:'#16131D','grid-h':'#1F1B29','grid-v':'#1F1B29','major-h':'#2B2539','major-v':'#2B2539',fg:'#EEE8F6',muted:'#A59CB8',surface:'#1E1A28','surface-2':'#272132',line:'#3A3149',hl:'#E9B949','hl-ink':'#16131D',good:'#7FD6A0',bad:'#FF8A8A',shade:'rgba(0,0,0,.5)'},
     p:{bg:'#16131D',grid:'#1F1B29',gridv:'#1F1B29',major:'#2B2539',majorv:'#2B2539',fg:'#EEE8F6',hl:'#8a6a24'}},
-  lcd:{name:'Graphing Calc',price:600,dark:false,desc:'Gray-green LCD and pixel numerals. You know the one.',
+  lcd:{name:'Graphing Calc',price:600,rank:3,dark:false,desc:'Gray-green LCD and pixel numerals. You know the one.',
     vars:{bg:'#B7C2A2','grid-h':'#AFBA99','grid-v':'#AFBA99','major-h':'#A6B18F','major-v':'#A6B18F','grid-size':'5px','major-size':'25px',fg:'#1E2618',muted:'#4B573F',surface:'#C3CDAF','surface-2':'#A9B593',line:'#8C9877',hl:'#1E2618','hl-ink':'#C3CDAF',good:'#1F5A1A',bad:'#8E1F1A',shade:'rgba(30,38,24,.25)','font-num':'"VT323","Courier New",monospace'},
-    p:{bg:'#B7C2A2',grid:'#AFBA99',gridv:'#AFBA99',major:'#A6B18F',majorv:'#A6B18F',fg:'#1E2618',hl:'#94a07e',font:'"VT323","Courier New",monospace'}}
+    p:{bg:'#B7C2A2',grid:'#AFBA99',gridv:'#AFBA99',major:'#A6B18F',majorv:'#A6B18F',fg:'#1E2618',hl:'#94a07e',font:'"VT323","Courier New",monospace'}},
+  vault:{name:'Diamond Vault',price:1500,rank:4,dark:true,desc:'Ice-blue facets on midnight. Diamond and up.',
+    vars:{bg:'#0D1828','grid-h':'#13243A','grid-v':'#13243A','major-h':'#1E3A5C','major-v':'#1E3A5C','grid-size':'16px','major-size':'64px',fg:'#E6F3FF',muted:'#93AECB',surface:'#112036','surface-2':'#172D4C',line:'#25446B',hl:'#7FD8FF','hl-ink':'#0D1828',good:'#7EE3A6',bad:'#FF9A9A',shade:'rgba(0,0,0,.45)'},
+    p:{bg:'#0D1828',grid:'#13243A',gridv:'#13243A',major:'#1E3A5C',majorv:'#1E3A5C',fg:'#E6F3FF',hl:'#2a6f96'}},
+  hall:{name:"Champion's Hall",price:3000,rank:7,dark:true,desc:'Black marble and molten gold. Champions only.',
+    vars:{bg:'#14100A','grid-h':'#1E180E','grid-v':'#1E180E','major-h':'#3A2B10','major-v':'#3A2B10',fg:'#FFF3D6',muted:'#C9B68C',surface:'#1C160C','surface-2':'#271E0F',line:'#4A3815',hl:'#FFC53D','hl-ink':'#14100A',good:'#9BE28C',bad:'#FF8F7A',shade:'rgba(0,0,0,.5)'},
+    p:{bg:'#14100A',grid:'#1E180E',gridv:'#1E180E',major:'#3A2B10',majorv:'#3A2B10',fg:'#FFF3D6',hl:'#8a6514'}}
 };
 const INKS={
   graphite:{name:'Graphite',price:0,desc:'Matches the paper.'},
@@ -376,7 +442,9 @@ const INKS={
   green:{name:'Forest',price:80,light:'#1E7A45',dark:'#74D69B',desc:'Calm and steady.'},
   violet:{name:'Violet',price:120,light:'#6B3FC4',dark:'#C2A6FF',desc:'Fountain pen purple.'},
   copper:{name:'Copper',price:160,light:'#A8561C',dark:'#F0A060',desc:'Warm metallic.'},
-  gold:{name:'Gold Leaf',price:250,light:'#8F6B00',dark:'#F2C94C',desc:'For record holders.'}
+  gold:{name:'Gold Leaf',price:250,rank:2,light:'#8F6B00',dark:'#F2C94C',desc:'Gold rank and up.'},
+  prism:{name:'Diamond Glint',price:600,rank:4,light:'#1F7FC4',dark:'#8FDCFF',desc:'Ice-blue sparkle. Diamond and up.'},
+  ember:{name:'Grandmaster Ember',price:1000,rank:6,light:'#C2410C',dark:'#FF9B5E',desc:'Burns hot. Grandmaster and up.'}
 };
 const FX={
   confetti:{name:'Confetti',price:150,desc:'Bursts at streaks of 10, 25 and 50, and on new records.'},
@@ -385,7 +453,8 @@ const FX={
 const SOUNDS={
   chime:{name:'Chime',price:0,desc:'Soft bells. The default.'},
   marimba:{name:'Marimba',price:120,desc:'Warm wooden notes.'},
-  arcade:{name:'Arcade',price:180,desc:'8-bit bleeps from an old handheld.'}
+  arcade:{name:'Arcade',price:180,desc:'8-bit bleeps from an old handheld.'},
+  fanfare:{name:'Royal Fanfare',price:1200,rank:5,desc:'Brassy and triumphant. Master and up.'}
 };
 const POWER={
   freeze:{name:'Streak Freeze',price:40,desc:'Saves a streak of 5+ from one miss. Holds up to 3.'},
@@ -406,6 +475,7 @@ function freshSave(){return{v:1,updatedAt:0,carries:0,totalEarned:0,
   freezes:0,double:false,
   daily:{date:today(),correct:0,claimed:false,streak:0,last:'',goal:100},
   days:{},tips:{check:3},
+  rank:{rr:null,peak:null,claimed:[],shield:0,runs:0,placedAt:0},challenges:{},
   set:{mode:'sprint',dur:60,count:20,diff:'standard',ops:['add','sub','mul','div'],sound:true,keySounds:true,vol:70,ignoreSilent:false}};}
 function migrate(s){
   const f=freshSave(); if(!s||typeof s!=='object') return f;
@@ -414,6 +484,8 @@ function migrate(s){
   for(const o in f.ops) if(!s.ops[o]) s.ops[o]={c:0,a:0,t:0};
   if(!s.set.ops||!s.set.ops.length) s.set.ops=['add'];
   if(!s.tips||typeof s.tips.check!=='number')s.tips={check:3};
+  if(!Array.isArray(s.rank.claimed))s.rank.claimed=[];
+  if(!s.challenges||typeof s.challenges!=='object')s.challenges={};
   return s;
 }
 const LS_KEY='carry-the-one-save';
@@ -480,19 +552,96 @@ try{window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',
 
 /* ---------- helpers ---------- */
 const $=s=>document.querySelector(s);
-const rnd=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
-const pick=a=>a[Math.floor(Math.random()*a.length)];
+let RNG=Math.random;
+const rnd=(a,b)=>a+Math.floor(RNG()*(b-a+1));
+const pick=a=>a[Math.floor(RNG()*a.length)];
 const gcd=(a,b)=>{a=Math.abs(a);b=Math.abs(b);while(b){[a,b]=[b,a%b];}return a;};
 const neg=v=>v<0?'−'+Math.abs(v):String(v);
 function reduce(f){let n=f.n,d=f.d;if(d<0){n=-n;d=-d;}const k=gcd(n,d)||1;return{n:n/k,d:d/k};}
 function fmt(f){return f.d===1?neg(f.n):neg(f.n)+'/'+f.d;}
 const coinSvg=()=>'<svg class="coin" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="var(--hl)" stroke="var(--fg)" stroke-width="2"/><text x="12" y="16.6" text-anchor="middle" font-size="13" font-weight="800" fill="var(--hl-ink)" font-family="Figtree,system-ui,sans-serif">1</text></svg>';
-function rankFor(n){let r=RANKS[0],next=null;for(let i=0;i<RANKS.length;i++){if(n>=RANKS[i][0]){r=RANKS[i];next=RANKS[i+1]||null;}}return{name:r[1],at:r[0],next};}
+function tierIndex(rr){let ti=0;for(let i=0;i<TIERS.length;i++)if(rr>=TIERS[i].min)ti=i;return ti;}
+function labelOf(rr){const t=TIERS[tierIndex(rr)];return t.divs?t.name+' '+['III','II','I'][Math.min(2,Math.floor((rr-t.min)/100))]:t.name;}
+function rankInfo(rr){
+  if(rr==null)return{unranked:true,ti:-1,label:'Unranked',pips:0};
+  const ti=tierIndex(rr),t=TIERS[ti];let lo=t.min,hi=TIERS[ti+1]?TIERS[ti+1].min:null,pips=0;
+  if(t.divs){const d=Math.min(2,Math.floor((rr-t.min)/100));lo=t.min+d*100;hi=lo+100;pips=d+1;}
+  return{ti,tier:t,label:labelOf(rr),lo,hi,pips};
+}
+const curTi=()=>save.rank.rr==null?-1:tierIndex(save.rank.rr);
+/* playful tier emblems, drawn in code so they work offline */
+let emN=0;
+const SHIELD='M32 5 L53 12 V30 C53 45 43 54 32 59 C21 54 11 45 11 30 V12 Z';
+function starPts(cx,cy,R,r,n){const out=[];for(let i=0;i<n*2;i++){const a=-Math.PI/2+i*Math.PI/n,rad=i%2?r:R;out.push((cx+Math.cos(a)*rad).toFixed(1)+','+(cy+Math.sin(a)*rad).toFixed(1));}return out.join(' ');}
+function emblem(ti,size,pips){
+  const id='em'+(++emN),K='#1B1A22';
+  if(ti==null||ti<0)return `<svg class="emblem" viewBox="0 0 64 64" width="${size}" height="${size}" aria-hidden="true"><path d="${SHIELD}" fill="var(--surface-2)" stroke="var(--muted)" stroke-width="2.5" stroke-dasharray="5 4"/><text x="32" y="42" text-anchor="middle" font-family="Figtree,system-ui,sans-serif" font-weight="900" font-size="26" fill="var(--muted)">?</text></svg>`;
+  const t=TIERS[ti],F=`url(#${id})`,S=`stroke="${K}" stroke-width="3" stroke-linejoin="round"`;
+  const glyph=(y,fs)=>t.glyph?`<text x="32" y="${y}" text-anchor="middle" font-family="Figtree,system-ui,sans-serif" font-weight="900" font-size="${fs}" fill="${K}">${t.glyph}</text>`:'';
+  const shine=`<path d="M20 14 Q24 10 30 9" stroke="#fff" stroke-opacity=".7" stroke-width="3" fill="none" stroke-linecap="round"/>`;
+  let b='';
+  switch(t.id){
+    case 'bronze':b=`<path d="M22 38 L15 60 L23 56 L27 62 L32 44Z M42 38 L49 60 L41 56 L37 62 L32 44Z" fill="#D9534F" ${S}/><circle cx="32" cy="28" r="21" fill="${F}" ${S}/><circle cx="32" cy="28" r="14.5" fill="none" stroke="${K}" stroke-opacity=".3" stroke-width="2"/>${glyph(37,24)}<path d="M19 20 Q22 13 29 11" stroke="#fff" stroke-opacity=".7" stroke-width="3" fill="none" stroke-linecap="round"/>`;break;
+    case 'silver':b=`<path d="${SHIELD}" fill="${F}" ${S}/><path d="M32 12 L47 17 V30 C47 41 40 48 32 52" fill="none" stroke="${K}" stroke-opacity=".18" stroke-width="3"/>${glyph(41,26)}${shine}`;break;
+    case 'gold':b=`<path d="M20 44 L14 62 L22 58 L26 63 L30 48Z M44 44 L50 62 L42 58 L38 63 L34 48Z" fill="#3E7BD8" ${S}/><polygon points="${starPts(32,30,27,13,5)}" fill="${F}" ${S}/><circle cx="32" cy="31" r="10" fill="#FFF6CC" stroke="${K}" stroke-width="2"/>${glyph(37,16)}`;break;
+    case 'platinum':b=`<polygon points="32,4 56,18 56,46 32,60 8,46 8,18" fill="${F}" ${S}/><polygon points="32,13 48,22 48,42 32,51 16,42 16,22" fill="none" stroke="${K}" stroke-opacity=".25" stroke-width="2.5"/>${glyph(41,24)}<path d="M14 20 L24 14" stroke="#fff" stroke-opacity=".75" stroke-width="3" stroke-linecap="round"/>`;break;
+    case 'diamond':b=`<path d="M12 23 L23 9 H41 L52 23 L32 58 Z" fill="${F}" ${S}/><path d="M12 23 H52 M23 9 L27 23 L32 58 M41 9 L37 23 L32 58 M27 23 L32 9 L37 23" fill="none" stroke="${K}" stroke-opacity=".35" stroke-width="2"/><path d="M53 4 l2 5 5 2 -5 2 -2 5 -2 -5 -5 -2 5 -2z M9 40 l1.5 3.5 3.5 1.5 -3.5 1.5 -1.5 3.5 -1.5 -3.5 -3.5 -1.5 3.5 -1.5z" fill="#fff" stroke="${K}" stroke-width="1.2"/>`;break;
+    case 'master':b=`<path d="M32 10 L53 17 V33 C53 47 43 55 32 60 C21 55 11 47 11 33 V17 Z" fill="${F}" ${S}/><path d="M19 15 L16 2 L25 8 L32 0 L39 8 L48 2 L45 15 Z" fill="#FFD54A" ${S}/>${glyph(46,24)}<circle cx="32" cy="5" r="2.2" fill="#E64A6B"/>`;break;
+    case 'grandmaster':b=`<path d="M17 22 C6 16 0 26 2 36 C6 33 9 33 12 35 C9 38 9 42 11 45 C14 42 16 41 18 42 Z" fill="#FFF7EE" ${S}/><path d="M47 22 C58 16 64 26 62 36 C58 33 55 33 52 35 C55 38 55 42 53 45 C50 42 48 41 46 42 Z" fill="#FFF7EE" ${S}/><path d="M32 12 L49 18 V32 C49 45 41 52 32 57 C23 52 15 45 15 32 V18 Z" fill="${F}" ${S}/><path d="M21 17 L19 4 L27 10 L32 2 L37 10 L45 4 L43 17 Z" fill="#FFD54A" ${S}/>${glyph(44,20)}`;break;
+    case 'champion':b=`<path d="M32 0 C38 8 47 10 49 20 C54 17 59 24 58 33 C57 47 46 56 32 56 C18 56 7 47 6 33 C5 24 10 17 15 20 C17 10 26 8 32 0 Z" fill="#FF6B35" ${S}/><path d="M32 8 C36 14 42 15 43 22 C47 21 50 27 49 33 C47 43 40 48 32 48 C24 48 17 43 15 33 C14 27 17 21 21 22 C22 15 28 14 32 8 Z" fill="#FFB627"/><path d="M19 18 C10 18 10 32 21 32 M45 18 C54 18 54 32 43 32" fill="none" stroke="${K}" stroke-width="6" stroke-linecap="round"/><path d="M19 18 C10 18 10 32 21 32 M45 18 C54 18 54 32 43 32" fill="none" stroke="${t.a}" stroke-width="2.6" stroke-linecap="round"/><path d="M19 14 H45 V24 C45 35 39 41 32 41 C25 41 19 35 19 24 Z" fill="${F}" ${S}/><rect x="28.5" y="41" width="7" height="7" fill="${F}" ${S}/><rect x="21" y="48" width="22" height="8" rx="2" fill="${F}" ${S}/>${glyph(31,15)}<path d="M23 18 Q24 15 28 15" stroke="#fff" stroke-opacity=".8" stroke-width="2.5" fill="none" stroke-linecap="round"/>`;break;
+  }
+  const pipRow=pips?[0,1,2].map(i=>`<circle cx="${22+i*10}" cy="69" r="3.6" fill="${i<pips?t.b:'none'}" stroke="${i<pips?K:'var(--muted)'}" stroke-width="1.6"/>`).join(''):'';
+  return `<svg class="emblem e-${t.id}" viewBox="0 0 64 ${pips?74:64}" width="${size}" height="${Math.round(size*(pips?74:64)/64)}" aria-hidden="true"><defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${t.a}"/><stop offset="1" stop-color="${t.b}"/></linearGradient></defs>${b}${pipRow}</svg>`;
+}
+/* rank math: a run's performance is a rating on the RR scale; your RR moves toward it */
+function runPerformance(perf,attempts,solved){
+  if(!perf.length||!attempts)return 0;
+  const Lavg=perf.reduce((a,x)=>a+x.L,0)/perf.length;
+  const rs=perf.map(x=>x.r).sort((a,b)=>a-b),med=rs[Math.floor(rs.length/2)];
+  const sp=Math.max(-200,Math.min(300,(1-med)*400))*(Lavg/9),acc=solved/attempts;
+  return Math.max(0,Math.round(((Lavg-1)*230+80+sp)*acc*acc));
+}
+function applyRank(P,attempts){
+  const R=save.rank,before=R.rr,d=P-before;
+  let delta=d>=0?Math.min(60,Math.max(4,Math.round(d*0.2))):Math.max(-30,Math.round(d*0.15));
+  delta=Math.round(delta*Math.min(1,attempts/20));
+  const ib=rankInfo(before);
+  let after=Math.max(0,before+delta);
+  if(delta<0&&R.shield>0)after=Math.max(after,ib.tier.min);
+  if(R.shield>0)R.shield--;
+  R.rr=after;R.runs=(R.runs||0)+1;
+  const ia=rankInfo(after);let reward=0;
+  if(ia.ti>ib.ti){R.shield=2;for(let i=ib.ti+1;i<=ia.ti;i++){const t=TIERS[i];if(!R.claimed.includes(t.id)){R.claimed.push(t.id);reward+=t.reward;}}}
+  if(R.peak==null||after>R.peak)R.peak=after;
+  save.carries+=reward;save.totalEarned+=reward;
+  return{before,after,delta:after-before,P,ib,ia,promoted:ia.ti>ib.ti,divChange:ia.label!==ib.label,reward};
+}
+/* Daily Challenge: same 20 problems for everyone on a given day */
+const CH_EPOCH=new Date(2026,9,10);
+function challengeNo(d){d=d||new Date();const a=new Date(d.getFullYear(),d.getMonth(),d.getDate());return Math.round((a-CH_EPOCH)/86400000)+1;}
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function challengeSet(no){
+  const old=RNG;RNG=mulberry32(no*7919+20261010);
+  try{
+    const pool=[];['add','sub','mul','div','frac'].forEach(o=>{for(let i=0;i<4;i++)pool.push(o);});
+    for(let i=pool.length-1;i>0;i--){const j=Math.floor(RNG()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]];}
+    const out=[];let prev='';
+    pool.forEach((op,i)=>{const L=i<6?4:i<12?5:i<17?6:7;let p,gd=0;do{p=gen(op,L);}while(p.text===prev&&gd++<10);prev=p.text;out.push(p);});
+    return out;
+  }finally{RNG=old;}
+}
+function chalStreak(){let n=0;const d=new Date();if(!save.challenges[dayKey(d)])d.setDate(d.getDate()-1);while(save.challenges[dayKey(d)]){n++;d.setDate(d.getDate()-1);}return n;}
+function shareText(rec){const sq=[...rec.grid].map(c=>c==='1'?'🟩':'🟥');return `Carry the One · Daily #${rec.no}\n⏱ ${fmtClock(rec.time)} · ${rec.solved}/20 correct\n${sq.slice(0,10).join('')}\n${sq.slice(10).join('')}`;}
+function copyText(txt,after){
+  const fail=()=>after(false);
+  try{if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(txt).then(()=>after(true),fail);else fail();}catch(e){fail();}
+}
 function rollDaily(){const t=today();if(save.daily.date!==t){save.daily.date=t;save.daily.correct=0;save.daily.claimed=false;
   const keys=Object.keys(save.days).sort();while(keys.length>60)delete save.days[keys.shift()];}}
 const goalN=()=>GOALS.includes(save.daily.goal)?save.daily.goal:100;
 const goalBonus=n=>Math.round((n||goalN())*0.6);
 function dayRec(k){return save.days[k]||(save.days[k]={c:0,m:false});}
+function recordSpeed(op,dt,lim){const dr=dayRec(today());dr.s=dr.s||{};const sp=dr.s[op]||(dr.s[op]=[0,0]);sp[0]+=Math.round(dt*speedLimit(op,5)/lim);sp[1]++;}
 function lastDays(n){const out=[];const dt=new Date();dt.setDate(dt.getDate()-(n-1));for(let i=0;i<n;i++){const k=dayKey(dt);out.push({k,date:new Date(dt),r:save.days[k]||{c:0,m:false}});dt.setDate(dt.getDate()+1);}return out;}
 function claimDaily(){
   const bonus=goalBonus();
@@ -531,32 +680,32 @@ const LV={
 function gen(op,level){
   const L=Math.max(1,Math.min(9,Math.round(level)));
   const mk=(parts,ans)=>{const p=P(parts,ans,op);p.level=L;return p;};
-  if(op==='add'){const R=LV.add[L-1];let a=rnd(...R[0]),b=rnd(...R[1]);if(Math.random()<.5)[a,b]=[b,a];return mk([N(a),S('+'),N(b)],{n:a+b,d:1});}
+  if(op==='add'){const R=LV.add[L-1];let a=rnd(...R[0]),b=rnd(...R[1]);if(RNG()<.5)[a,b]=[b,a];return mk([N(a),S('+'),N(b)],{n:a+b,d:1});}
   if(op==='sub'){const R=LV.sub[L-1];let a=rnd(...R[0]),b=rnd(...R[1]);if(a===b)a+=rnd(1,5);
-    if(b>a&&!(Math.random()<LV.negSub[L-1]))[a,b]=[b,a];
+    if(b>a&&!(RNG()<LV.negSub[L-1]))[a,b]=[b,a];
     return mk([N(a),S('−'),N(b)],{n:a-b,d:1});}
-  if(op==='mul'){const R=pick(LV.mul[L-1]);let a=rnd(...R[0]),b=rnd(...R[1]);if(Math.random()<.5)[a,b]=[b,a];return mk([N(a),S('×'),N(b)],{n:a*b,d:1});}
+  if(op==='mul'){const R=pick(LV.mul[L-1]);let a=rnd(...R[0]),b=rnd(...R[1]);if(RNG()<.5)[a,b]=[b,a];return mk([N(a),S('×'),N(b)],{n:a*b,d:1});}
   if(op==='div'){const R=LV.div[L-1];const d=rnd(...R[0]),q=rnd(...R[1]);return mk([N(d*q),S('÷'),N(d)],{n:q,d:1});}
   for(let guard=0;guard<300;guard++){
     if(L<=2){
-      if(Math.random()<(L===1?.5:.35)){const d=pick(L===1?[2,3,4,5,10]:[2,3,4,5,6,8,10]),n=L===1?1:rnd(1,d-1);if(gcd(n,d)>1)continue;
+      if(RNG()<(L===1?.5:.35)){const d=pick(L===1?[2,3,4,5,10]:[2,3,4,5,6,8,10]),n=L===1?1:rnd(1,d-1);if(gcd(n,d)>1)continue;
         const k=d*rnd(2,L===1?6:9);return mk([F(n,d),S('×'),N(k)],{n:n*k,d});}
       const d=rnd(3,L===1?10:12);let a=rnd(1,d-1),b=rnd(1,d-1);if(gcd(a,d)>1||gcd(b,d)>1)continue;
-      if(L===1||Math.random()<.5){if(L===1&&a+b>d)continue;return mk([F(a,d),S('+'),F(b,d)],{n:a+b,d});}
+      if(L===1||RNG()<.5){if(L===1&&a+b>d)continue;return mk([F(a,d),S('+'),F(b,d)],{n:a+b,d});}
       if(a===b)continue;if(a<b)[a,b]=[b,a];return mk([F(a,d),S('−'),F(b,d)],{n:a-b,d});
     }
     if(L===3){
       const pr=pick([[2,4],[3,6],[4,8],[5,10],[2,6],[3,9],[2,8],[4,12],[6,12],[2,10]]);
-      const [d1,d2]=Math.random()<.5?pr:[pr[1],pr[0]];
+      const [d1,d2]=RNG()<.5?pr:[pr[1],pr[0]];
       const n1=rnd(1,d1-1),n2=rnd(1,d2-1);if(gcd(n1,d1)>1||gcd(n2,d2)>1)continue;
       let A=F(n1,d1),B=F(n2,d2);
-      if(Math.random()<.55)return mk([A,S('+'),B],{n:n1*d2+n2*d1,d:d1*d2});
+      if(RNG()<.55)return mk([A,S('+'),B],{n:n1*d2+n2*d1,d:d1*d2});
       const v1=n1*d2,v2=n2*d1;if(v1===v2)continue;if(v1<v2)[A,B]=[B,A];
       return mk([A,S('−'),B],{n:Math.abs(v1-v2),d:d1*d2});
     }
     const C=LV.frac[L-1];
     const d1=pick(C.dens),d2=pick(C.dens);if(d1===d2)continue;
-    const n1=rnd(1,C.imp&&Math.random()<.4?d1*2-1:d1-1),n2=rnd(1,d2-1);
+    const n1=rnd(1,C.imp&&RNG()<.4?d1*2-1:d1-1),n2=rnd(1,d2-1);
     if(n1===d1||gcd(n1,d1)>1||gcd(n2,d2)>1)continue;
     const o=pick(C.ops);let A=F(n1,d1),B=F(n2,d2),ans;
     if(o==='+')ans={n:n1*d2+n2*d1,d:d1*d2};
@@ -603,6 +752,7 @@ function noise(o){const c=audio();if(!c)return;o=o||{};
   src.connect(fl);fl.connect(gn);gn.connect(SND.out);src.start(t0);src.stop(t0+dur+.02);}
 /* one melodic note in the voice of the equipped sound pack */
 function voice(f,o){o=o||{};const pk=save.eq.sound||'chime',v=o.vol||.2,dur=o.dur||.15;
+  if(pk==='fanfare'){tone(f,Object.assign({},o,{type:'sawtooth',vol:v*.16,dur:dur*1.3,attack:.02}));tone(f,Object.assign({},o,{type:'triangle',vol:v*.6,dur:dur*1.3,attack:.012}));return;}
   if(pk==='arcade'){tone(f,Object.assign({},o,{type:'square',vol:v*.42,dur:dur*.8,attack:.002}));return;}
   if(pk==='marimba'){tone(f,Object.assign({},o,{type:'sine',dur:Math.min(dur*1.2,.3),attack:.002}));tone(f*4,Object.assign({},o,{type:'sine',vol:v*.22,dur:.05,attack:.001}));return;}
   tone(f,Object.assign({},o,{type:'sine',dur:dur*1.7}));tone(f*2.76,Object.assign({},o,{type:'sine',vol:v*.16,dur:dur*.7}));}
@@ -642,10 +792,10 @@ function sfx(name,...args){try{if(save.set.sound&&SFX[name])SFX[name](...args);}
 
 /* ---------- effects ---------- */
 const reduceMotion=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-const cv=$('#fx'),cx=cv.getContext('2d');let parts=[],fxRunning=false;
+const cv=$('#fx');let cx=null;try{cx=cv.getContext('2d');}catch(e){cx=null;}let parts=[],fxRunning=false;
 function tok(n){return getComputedStyle(document.documentElement).getPropertyValue('--'+n).trim()||'#888';}
 function burst(kind){
-  if(reduceMotion)return;
+  if(reduceMotion||!cx)return;
   const dpr=window.devicePixelRatio||1;cv.width=innerWidth*dpr;cv.height=innerHeight*dpr;cx.setTransform(dpr,0,0,dpr,0,0);
   const cols=[tok('hl'),tok('fg'),tok('good'),tok('ink'),tok('bad')];
   const n=kind==='coins'?36:90;
@@ -675,8 +825,9 @@ function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('show'
 /* ---------- rendering: shell ---------- */
 let tab='play';
 function renderPurse(){$('#purse').innerHTML=coinSvg().replace('class="coin"','')+'<span class="num">'+save.carries.toLocaleString()+'</span><small>carries</small>';}
+function renderChip(){const c=document.getElementById('rankchip');if(!c)return;const i=rankInfo(save.rank.rr);c.innerHTML=emblem(i.ti,30,0)+'<span>'+i.label+'</span>';}
 function render(){
-  renderPurse();
+  renderPurse();renderChip();
   const ve=document.getElementById('ver');if(ve)ve.innerHTML=`Carry the One <b>v${APP_VERSION}</b> · updated ${CHANGELOG[0][1]}`;
   document.querySelectorAll('.nav button').forEach(b=>b.setAttribute('aria-current',b.dataset.tab===tab?'page':'false'));
   const m=$('#main');
@@ -687,11 +838,10 @@ function render(){
 
 function homeHTML(){
   rollDaily();
-  const s=save.set,d=save.daily,r=rankFor(save.life.correct);
+  const s=save.set,d=save.daily;
   const GOAL=goalN(),GB=goalBonus(),pct=Math.min(1,d.correct/GOAL),C=2*Math.PI*30;
   if(!s.count)s.count=20;
   const best=s.mode==='sprint'?(save.bests[bestKey(s)]||0):s.mode==='race'?(save.races[raceKey(s)]||0):(save.endless[s.diff]||0);
-  const prog=r.next?Math.round((save.life.correct-r.at)/(r.next[0]-r.at)*100):100;
   const opChips=Object.keys(OPS).map(k=>`<button class="chip" data-op="${k}" aria-pressed="${s.ops.includes(k)}"><b>${OPS[k].sym}</b><span>${OPS[k].label}</span></button>`).join('');
   return `<div class="home">
   <div class="stack">
@@ -713,6 +863,8 @@ function homeHTML(){
     </section>
   </div>
   <div class="stack">
+    ${challengeCard()}
+    ${rankCard()}
     <div class="card daily">
       <svg class="ring" viewBox="0 0 76 76" aria-hidden="true">
         <circle cx="38" cy="38" r="30" fill="none" stroke="var(--surface-2)" stroke-width="9"/>
@@ -729,12 +881,6 @@ function homeHTML(){
       <p class="eyebrow" style="margin:14px 0 6px">Daily target</p>
       <div class="seg goalpick">${GOALS.map(n=>`<button data-goal="${n}" aria-pressed="${GOAL===n}">${n}<small>+${goalBonus(n)}</small></button>`).join('')}</div>
     </div>
-    <div class="card rank">
-      <p class="eyebrow">Rank</p>
-      <div class="rank-name">${r.name}</div>
-      <p>${save.life.correct.toLocaleString()} solved${r.next?` · ${(r.next[0]-save.life.correct).toLocaleString()} more to ${r.next[1]}`:' · top rank'}</p>
-      <div class="bar"><i style="width:${prog}%"></i></div>
-    </div>
     <div class="boosts">
       <span class="tag ${save.freezes?'on':''}">Streak freezes: ${save.freezes}</span>
       <span class="tag ${save.double?'on':''}">${save.double?'×2 next run':'No ×2 boost'}</span>
@@ -742,9 +888,31 @@ function homeHTML(){
   </div></div>`;
 }
 
-function buyBtn(price,owned,equipped,attrs){
+function rankCard(){
+  const R=save.rank;
+  if(R.rr==null)return `<div class="card rank rankcard"><div class="rk-top">${emblem(-1,64)}<div style="min-width:0"><p class="eyebrow" style="margin:0">Rank</p><div class="rank-name">Unranked</div><p>A 20-problem placement test finds your rank and sets your starting levels.</p></div></div><button class="go small-go" data-act="placement">Find my rank</button></div>`;
+  const i=rankInfo(R.rr),pct=i.hi?Math.round((R.rr-i.lo)/(i.hi-i.lo)*100):100;
+  return `<div class="card rank rankcard"><div class="rk-top">${emblem(i.ti,70,i.pips)}<div style="min-width:0"><p class="eyebrow" style="margin:0">Rank</p><div class="rank-name">${i.label}</div><p><b style="color:var(--fg)">${R.rr} RR</b>${i.hi?` · ${i.hi-R.rr} to ${labelOf(i.hi)}`:' · top of the ladder'}</p></div></div>
+    <div class="bar"><i style="width:${pct}%"></i></div>
+    <p class="rk-note">${R.shield?`<b>Promotion shield</b> for ${R.shield} more run${R.shield>1?'s':''}. `:''}Every run of 10+ problems moves your rank. Higher levels, speed and accuracy climb fastest.</p></div>`;
+}
+let shareMsg='';
+function challengeCard(){
+  const no=challengeNo(),rec=save.challenges[today()],st=chalStreak();
+  const ds=new Date().toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'});
+  if(rec)return `<div class="card chal done"><div class="chal-h"><p class="eyebrow">Daily Challenge #${no} · ${ds}</p><span class="tag on">Done ✓${st>1?' · '+st+' days':''}</span></div>
+    <div class="chal-score"><b class="num">${fmtClock(rec.time)}</b><span>${rec.solved}/20 correct</span></div>
+    <div class="egrid">${[...rec.grid].map(c=>`<i class="${c==='1'?'ok':'no'}"></i>`).join('')}</div>
+    <div class="btnrow" style="margin-top:12px"><button class="buy" data-do="share">Copy result</button><button class="buy alt" data-act="daily">Practice again</button>${shareMsg?`<span class="msg good">${shareMsg}</span>`:''}</div></div>`;
+  return `<div class="card chal"><div class="chal-h"><p class="eyebrow">Daily Challenge #${no} · ${ds}</p>${st?`<span class="tag">${st} day streak</span>`:''}</div>
+    <p>20 problems, the same for everyone today. Timed, +5s per miss. Your first attempt is the one that counts.</p>
+    <button class="go" data-act="daily">Play today's challenge</button></div>`;
+}
+function rankLock(r){return `<button class="buy lock" disabled>${emblem(r,18)}Reach ${TIERS[r].name}</button>`;}
+function buyBtn(price,owned,equipped,attrs,rank){
   if(equipped)return `<button class="buy alt" disabled>Equipped</button>`;
   if(owned)return `<button class="buy alt" ${attrs} data-do="equip">Equip</button>`;
+  if(rank!=null&&curTi()<rank)return rankLock(rank);
   const short=price-save.carries;
   if(short>0)return `<button class="buy" disabled>Need ${short} more</button>`;
   return `<button class="buy" ${attrs} data-do="buy">Buy · ${price} ${coinSvg()}</button>`;
@@ -753,10 +921,10 @@ function shopHTML(){
   const skins=Object.entries(SKINS).map(([k,s])=>{const p=s.p;
     const st=`--p-bg:${p.bg};--p-grid:${p.grid};--p-grid-v:${p.gridv};--p-major:${p.major};--p-major-v:${p.majorv};--p-fg:${p.fg};--p-hl:${p.hl};--p-font:${p.font||'var(--font-num)'}`;
     const eqd=save.eq.skin===k,own=save.owned.skins.includes(k);
-    return `<div class="item ${eqd?'eq':''}"><div class="prev" style='${st}'><b>7×8=<i>56</i></b></div><h4>${s.name}</h4><p>${s.desc}</p>${buyBtn(s.price,own,eqd,`data-kind="skins" data-id="${k}"`)}</div>`;}).join('');
+    return `<div class="item ${eqd?'eq':''}"><div class="prev" style='${st}'><b>7×8=<i>56</i></b></div><h4>${s.name}</h4><p>${s.desc}</p>${buyBtn(s.price,own,eqd,`data-kind="skins" data-id="${k}"`,s.rank)}</div>`;}).join('');
   const inks=Object.entries(INKS).map(([k,s])=>{const eqd=save.eq.ink===k,own=save.owned.inks.includes(k);
     const col=s.light?s.light:'var(--fg)';
-    return `<div class="ink-row ${eqd?'eq':''}"><span class="swatch" style="background:${col}" aria-hidden="true"></span><div><h4>${s.name}</h4><p>${s.desc}</p></div>${buyBtn(s.price,own,eqd,`data-kind="inks" data-id="${k}"`)}</div>`;}).join('');
+    return `<div class="ink-row ${eqd?'eq':''}"><span class="swatch" style="background:${col}" aria-hidden="true"></span><div><h4>${s.name}</h4><p>${s.desc}</p></div>${buyBtn(s.price,own,eqd,`data-kind="inks" data-id="${k}"`,s.rank)}</div>`;}).join('');
   const fx=Object.entries(FX).map(([k,s])=>{const own=save.owned.fx.includes(k),on=save.eq.fx[k];
     let btn;
     if(own)btn=`<button class="buy alt" data-do="togglefx" data-id="${k}">${on?'On · tap to turn off':'Off · tap to turn on'}</button>`;
@@ -774,6 +942,7 @@ function shopHTML(){
         <li>Levels move with you: Warm-up stays in 1–4, Standard in 3–7, Hard in 6–9</li>
         <li><b>+1</b> for a fast answer (the time allowed grows with the level)</li>
         <li>Streaks multiply everything: <b>×2</b> from 10 in a row, <b>×3</b> from 25</li>
+        <li><b>+100 to +2,000</b> the first time you reach each rank tier, and some items unlock only at higher ranks</li>
         <li><b>+15 to +120</b> for the daily goal, depending on your target, <b>+${PB_BONUS}</b> for beating a sprint or race record</li>
       </ul></div>
     <section class="section"><div class="section-h"><h3>Power-ups</h3><p>Used up when they fire</p></div>
@@ -784,7 +953,7 @@ function shopHTML(){
     <section class="section"><div class="section-h"><h3>Paper</h3><p>Changes the whole app</p></div><div class="grid three">${skins}</div></section>
     <section class="section"><div class="section-h"><h3>Pen</h3><p>Colors the problems and your answers</p></div><div class="inks">${inks}</div></section>
     <section class="section"><div class="section-h"><h3>Sounds</h3><p>Changes every sound in the app. Tap Equip to hear it.</p></div><div class="grid three">${Object.entries(SOUNDS).map(([k,sd])=>{const eqd=save.eq.sound===k,own=save.owned.sounds.includes(k);
-      return `<div class="item ${eqd?'eq':''}"><h4>${sd.name}</h4><p>${sd.desc}</p>${buyBtn(sd.price,own,eqd,`data-kind="sounds" data-id="${k}"`)}</div>`;}).join('')}</div></section>
+      return `<div class="item ${eqd?'eq':''}"><h4>${sd.name}</h4><p>${sd.desc}</p>${buyBtn(sd.price,own,eqd,`data-kind="sounds" data-id="${k}"`,sd.rank)}</div>`;}).join('')}</div></section>
     <section class="section"><div class="section-h"><h3>Effects</h3><p>Can be switched off after buying</p></div><div class="grid">${fx}</div></section>
   </div>`;
 }
@@ -812,6 +981,42 @@ function dailyChart(){
     <div class="facts" style="margin-top:8px"><div class="fact"><b>${wkTotal}</b><span>This week</span></div><div class="fact"><b>${wk.filter(x=>x.r.m).length}/7</b><span>Goals hit</span></div><div class="fact"><b>${best}</b><span>Best day</span></div></div>
   </div>`;
 }
+function ladderHTML(){
+  const R=save.rank,cur=curTi();
+  return `<div class="ladder">${TIERS.map((t,i)=>`<div class="rung${i===cur?' cur':''}${i>cur?' locked':''}">${emblem(i,46)}<b>${t.name}</b><span>${t.min.toLocaleString()}+ RR</span>${t.reward?`<small class="${R.claimed.includes(t.id)?'got':''}">${R.claimed.includes(t.id)?'Reached':'+'+t.reward.toLocaleString()}</small>`:'<small class="got">Start</small>'}</div>`).join('')}</div>
+  <div class="btnrow" style="margin-top:10px"><button class="buy alt" data-act="placement">${R.rr==null?'Take the placement test':'Retake placement'}</button><span class="muted" style="font-size:12.5px">${R.rr==null?'20 problems, about 2 minutes.':'Retaking resets your starting levels. Your rank only changes through ranked runs.'}</span></div>`;
+}
+let speedOp=null;
+function speedChart(){
+  const days=lastDays(14);
+  const avail=Object.keys(OPS).filter(o=>days.some(x=>x.r.s&&x.r.s[o]&&x.r.s[o][1]));
+  if(!avail.length)return `<div class="empty">Answer some problems and your speed for each operation will be charted here, day by day.</div>`;
+  if(!avail.includes(speedOp))speedOp=avail.includes('mul')?'mul':avail[0];
+  const op=speedOp;
+  const pts=days.map((x,i)=>{const v=x.r.s&&x.r.s[op];return v&&v[1]?{i,v:v[0]/v[1]/1000,n:v[1],date:x.date}:null;}).filter(Boolean);
+  const vals=pts.map(q=>q.v);let lo=Math.max(0,Math.floor((Math.min(...vals)-0.4)*2)/2),hi=Math.ceil((Math.max(...vals)+0.4)*2)/2;if(hi-lo<1)hi=lo+1;
+  const W=340,H=170,L=36,R=12,T=14,B=24,X=i=>L+i*(W-L-R)/13,Y=v=>H-B-(v-lo)/(hi-lo)*(H-T-B);
+  const ticks=[lo,(lo+hi)/2,hi];
+  const grid=ticks.map(v=>`<line x1="${L}" x2="${W-R}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)" stroke-width="1" ${v===lo?'':'stroke-dasharray="2 4"'}/><text x="${L-6}" y="${Y(v)+3.5}" text-anchor="end" font-size="10" fill="var(--muted)">${v.toFixed(1)}s</text>`).join('');
+  const line=pts.length>1?`<path d="${pts.map((q,k)=>(k?'L':'M')+X(q.i).toFixed(1)+','+Y(q.v).toFixed(1)).join(' ')}" fill="none" stroke="var(--ink)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`:'';
+  const dots=pts.map((q,k)=>{const last=k===pts.length-1,lbl=q.date.toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'});
+    return `<g class="bar-g" data-note="speed-note" data-bar="${lbl}: ${q.v.toFixed(2)}s per ${OPS[op].sym} answer (${q.n} solved)"><circle cx="${X(q.i)}" cy="${Y(q.v)}" r="13" fill="transparent"/><circle cx="${X(q.i)}" cy="${Y(q.v)}" r="${last?5:4}" fill="var(--ink)" stroke="var(--surface)" stroke-width="2"/>${last?`<text x="${X(q.i)}" y="${Y(q.v)-10}" text-anchor="${q.i>11?'end':'middle'}" font-size="11" font-weight="800" fill="var(--fg)">${q.v.toFixed(1)}s</text>`:''}<title>${lbl}: ${q.v.toFixed(2)}s</title></g>`;}).join('');
+  const xl=days.map((x,i)=>`<text x="${X(i)}" y="${H-8}" text-anchor="middle" font-size="10" font-weight="${i===13?800:600}" fill="${i===13?'var(--fg)':'var(--muted)'}">${x.date.toLocaleDateString(undefined,{weekday:'narrow'})}</text>`).join('');
+  const wavg=arr=>{let a=0,n=0;arr.forEach(x=>{const v=x.r.s&&x.r.s[op];if(v&&v[1]){a+=v[0];n+=v[1];}});return n?a/n/1000:null;};
+  const now=wavg(days.slice(7)),was=wavg(days.slice(0,7));
+  let trend='Keep practicing. A week-over-week comparison appears once you have two weeks of '+OPS[op].sym+' answers.';
+  if(now!=null&&was!=null){const dlt=was-now;trend=Math.abs(dlt)<0.05?`About the same pace as the week before (${now.toFixed(2)}s).`:dlt>0?`<b style="color:var(--good)">${dlt.toFixed(2)}s faster</b> than the week before (${was.toFixed(2)}s → ${now.toFixed(2)}s).`:`<b style="color:var(--bad)">${(-dlt).toFixed(2)}s slower</b> than the week before (${was.toFixed(2)}s → ${now.toFixed(2)}s).`;}
+  return `<div class="card" style="padding:12px 12px 10px">
+    <div class="seg mini" style="margin-bottom:8px">${avail.map(o=>`<button data-speedop="${o}" aria-pressed="${o===op}">${OPS[o].sym}</button>`).join('')}</div>
+    <svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Average seconds per ${OP_NAMES[op]} answer, last 14 days" style="display:block;font-family:var(--font-body)">${grid}${line}${dots}${xl}</svg>
+    <p class="chart-note muted" id="speed-note">Tap a point for that day.</p>
+    <p style="margin:6px 2px 0;font-size:13.5px">${trend}</p></div>`;
+}
+function chalHistory(){
+  const ks=Object.keys(save.challenges).sort().reverse().slice(0,7);
+  if(!ks.length)return `<div class="empty">Play the Daily Challenge on the Play screen. Your official times show up here.</div>`;
+  return `<ul class="list">${ks.map(k=>{const r=save.challenges[k],[y,m,dd]=k.split('-').map(Number);return `<li><span>#${r.no} · ${new Date(y,m-1,dd).toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'})}</span><b>${fmtClock(r.time)} · ${r.solved}/20</b></li>`;}).join('')}</ul>`;
+}
 let confirmReset=false,exportShown=false,exportMsg='',importText='',importMsg='',pendingImport=null;
 const esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 function encodeSave(){return 'CTO1.'+btoa(unescape(encodeURIComponent(JSON.stringify(save))));}
@@ -836,22 +1041,25 @@ function statsHTML(){
   const races=Object.entries(save.races).sort((a,b)=>(+a[0].split('|')[0])-(+b[0].split('|')[0])||a[1]-b[1]).slice(0,8);
   const raceHTML=races.length?`<ul class="list">${races.map(([k,v])=>{const [n,diff,ops]=k.split('|');return `<li><span>${n} problems · ${DIFFS[diff]} · ${ops.split('+').map(o=>OPS[o]?OPS[o].sym:o).join(' ')}</span><b>${fmtClock(v)}</b></li>`;}).join('')}</ul>`:`<div class="empty">Race records show your fastest time for each problem count, difficulty and operation mix.</div>`;
   const hist=save.history.slice(0,8);
-  const histHTML=hist.length?`<ul class="list">${hist.map(h=>{const d=new Date(h.at);return `<li><span>${d.toLocaleDateString(undefined,{month:'short',day:'numeric'})} · ${h.mode==='sprint'?(h.dur<60?h.dur+'s':(h.dur/60)+' min')+' sprint':h.mode==='race'?h.count+'-problem race':'Endless'} · ${DIFFS[h.diff]}</span><b>${h.mode==='race'&&h.time?fmtClock(h.time)+' · '+h.acc+'%':h.score+' correct · '+h.acc+'%'}</b></li>`;}).join('')}</ul>`:`<div class="empty">Your last eight runs will be listed here.</div>`;
+  const histHTML=hist.length?`<ul class="list">${hist.map(h=>{const d=new Date(h.at);return `<li><span>${d.toLocaleDateString(undefined,{month:'short',day:'numeric'})} · ${h.mode==='sprint'?(h.dur<60?h.dur+'s':(h.dur/60)+' min')+' sprint · '+DIFFS[h.diff]:h.mode==='race'?h.count+'-problem race · '+DIFFS[h.diff]:h.mode==='daily'?'Daily Challenge':h.mode==='placement'?'Placement test':'Endless · '+DIFFS[h.diff]}</span><b>${(h.mode==='race'||h.mode==='daily')&&h.time?fmtClock(h.time)+' · '+h.acc+'%':h.score+' correct · '+h.acc+'%'}${typeof h.rr==='number'&&h.rr?`<span class="delta ${h.rr>0?'up':'down'}">${h.rr>0?'+':''}${h.rr}</span>`:''}</b></li>`;}).join('')}</ul>`:`<div class="empty">Your last eight runs will be listed here.</div>`;
   const syncText={cloud:'Saved to your Claude account, so your phone and computer share progress.',retry:'Saved on this device. Syncing to your account will retry on the next save.',device:IS_PWA?'Saved on this device, works with no internet. Use a save code to move progress to another device.':'Saved in this browser only. Use a save code to move progress to another device.',checking:'Checking for saved progress on your account…'}[cloud.status];
   return `<div>
     <p class="eyebrow">Stats</p>
-    <h2 class="title">${rankFor(L.correct).name}</h2>
+    <div class="stats-head">${emblem(rankInfo(save.rank.rr).ti,58,rankInfo(save.rank.rr).pips)}<h2 class="title">${rankInfo(save.rank.rr).label}</h2></div>
     <div class="tiles" style="margin-top:16px">
       <div class="tile"><b>${L.correct.toLocaleString()}</b><span>Problems solved</span></div>
       <div class="tile"><b>${acc}%</b><span>Accuracy</span></div>
       <div class="tile"><b>${L.bestStreak}</b><span>Best streak</span></div>
       <div class="tile"><b>${save.totalEarned.toLocaleString()}</b><span>Carries earned</span></div>
     </div>
+    <section class="section"><div class="section-h"><h3>Rank ladder</h3><p>${save.rank.rr==null?'Take the placement test to get on the ladder':`${save.rank.rr} RR · peak ${labelOf(save.rank.peak)}`}</p></div>${ladderHTML()}</section>
+    <section class="section"><div class="section-h"><h3>Speed over time</h3><p>Average time per correct answer, adjusted for level. Lower is faster.</p></div>${speedChart()}</section>
     <section class="section"><div class="section-h"><h3>Daily practice</h3><p>Correct answers per day, last 14 days</p></div>${dailyChart()}</section>
     <section class="section"><div class="section-h"><h3>By operation</h3><p>Average time counts correct answers only</p></div>${table}</section>
     <section class="section"><div class="section-h"><h3>Sprint records</h3></div>${bestHTML}</section>
     <section class="section"><div class="section-h"><h3>Race records</h3><p>Fastest times, misses included</p></div>${raceHTML}</section>
     <section class="section"><div class="section-h"><h3>Recent runs</h3></div>${histHTML}</section>
+    <section class="section"><div class="section-h"><h3>Daily Challenge</h3><p>${chalStreak()?chalStreak()+' day streak':'Official times only'}</p></div>${chalHistory()}</section>
     <section class="section"><div class="section-h"><h3>What's new</h3><p>You're on v${APP_VERSION}</p></div>
       <ul class="list">${CHANGELOG.slice(0,3).map(([v,dt,items])=>`<li style="display:grid;gap:2px;justify-content:stretch"><b>v${v} <span class="muted" style="font-weight:600">· ${dt}</span></b><span class="muted">${items.join(' · ')}</span></li>`).join('')}</ul></section>
     <section class="section"><div class="section-h"><h3>Settings</h3></div>
@@ -887,13 +1095,18 @@ async function lockScreen(){try{if('wakeLock' in navigator)wake=await navigator.
 function unlockScreen(){try{if(wake)wake.release();}catch(e){}wake=null;}
 function buzz(ms){try{if(navigator.vibrate)navigator.vibrate(ms);}catch(e){}}
 let resultsAt=0;
-let g=null,rafId=0;
-function startRun(){
+let g=null,rafId=0,lastKind='sprint';
+const UP=m=>m==='race'||m==='daily'||m==='placement';
+const PL_ORDER=['add','mul','sub','div','frac'];
+function startRun(kind){
   rollDaily();
-  const s=save.set;
-  g={mode:s.mode,dur:s.dur,target:s.count||20,answered:0,penalty:0,diff:s.diff,ops:[...s.ops],solved:0,attempts:0,streak:0,best:0,base:0,speed:0,mult:0,dailyBonus:0,
-     misses:[],times:[],input:'',locked:true,double:save.double,ended:false,freezesUsed:0,startLife:save.life.correct,p:null,prevText:'',queue:[],count:0,review:false,tok:0,missWait:false,buf:[],buffering:false,missRun:0,lvNote:null,lv:{},lv0:{}};
-  g.ops.forEach(o=>{const sv=save.levels[g.diff]&&save.levels[g.diff][o];const v=clampLv(typeof sv==='number'?sv-0.5:BANDS[g.diff][2],g.diff);g.lv[o]=v;g.lv0[o]=v;});
+  const s=save.set;kind=kind||s.mode;lastKind=kind;
+  const special=kind==='daily'||kind==='placement';
+  g={mode:kind,dur:s.dur,target:special?20:(s.count||20),answered:0,penalty:0,diff:special?'standard':s.diff,ops:special?Object.keys(OPS):[...s.ops],solved:0,attempts:0,streak:0,best:0,base:0,speed:0,mult:0,dailyBonus:0,
+     misses:[],times:[],perf:[],grid:[],input:'',locked:true,double:save.double,ended:false,freezesUsed:0,startLife:save.life.correct,p:null,prevText:'',queue:[],count:0,review:false,tok:0,missWait:false,buf:[],buffering:false,missRun:0,lvNote:null,lv:{},lv0:{},noQueue:special};
+  if(kind==='daily'){g.chNo=challengeNo();g.fixed=challengeSet(g.chNo);g.official=!save.challenges[today()];}
+  if(kind==='placement'){g.plv={};g.pn={};Object.keys(OPS).forEach(o=>{g.plv[o]=4;g.pn[o]=0;});}
+  if(!special)g.ops.forEach(o=>{const sv=save.levels[g.diff]&&save.levels[g.diff][o];const v=clampLv(typeof sv==='number'?sv-0.5:BANDS[g.diff][2],g.diff);g.lv[o]=v;g.lv0[o]=v;});
   if(g.double){save.double=false;}
   $('#layer').innerHTML=`<div class="screen" id="game"><div class="screen-in">
     <div class="hud">
@@ -923,11 +1136,12 @@ function startRun(){
   const run=g;
   if(g.mode!=='endless'){
     $('#clock').textContent=g.mode==='sprint'?Math.floor(g.dur/60)+':'+pad2(g.dur%60):fmtClock(0);
-    if(g.mode==='race'){const b=$('#tbar');if(b)b.style.transform='scaleX(0)';}
+    if(UP(g.mode)){const b=$('#tbar');if(b)b.style.transform='scaleX(0)';}
+    const intro=g.mode==='placement'?'Placement: 20 problems across every operation':g.mode==='daily'?`Daily Challenge #${g.chNo}${g.official?'':' · practice'}`:'Get ready';
     let n=3;
     const step=()=>{
       if(g!==run||run.ended)return;
-      if(n>0){$('#prob').innerHTML=`<span class="count">${n}</span>`;$('#ans').innerHTML='';$('#fb').textContent=n===3?'Get ready':'';sfx('count');n--;setTimeout(step,reduceMotion?350:560);}
+      if(n>0){$('#prob').innerHTML=`<span class="count">${n}</span>`;$('#ans').innerHTML='';$('#fb').className='feedback note';$('#fb').textContent=n===3||g.mode!=='sprint'?intro:'';sfx('count');n--;setTimeout(step,reduceMotion?350:560);}
       else{sfx('go');run.startT=performance.now();run.endAt=run.startT+run.dur*1000;next();tick();}
     };
     step();
@@ -970,7 +1184,7 @@ function adjustLevel(op,delta){
 }
 function tick(){
   if(!g||g.ended)return;
-  if(g.mode==='race'){
+  if(UP(g.mode)){
     if(!g.stopT)$('#clock').textContent=fmtClock(performance.now()-g.startT+g.penalty);
     rafId=requestAnimationFrame(tick);return;
   }
@@ -986,7 +1200,7 @@ function hud(){
   const mult=g.streak>=25?3:g.streak>=10?2:1;
   const earned=(g.base+g.speed+g.mult)*(g.double?2:1);
   $('#runc').innerHTML=coinSvg()+'<span class="num">+'+earned+'</span>';
-  $('#streak').innerHTML=`<span class="pill ${mult>1?'hot':''}">Streak ${g.streak}${mult>1?' · ×'+mult:''}</span>${g.mode==='endless'?`<span class="pill">Solved ${g.solved}</span>`:''}${g.mode==='race'?`<span class="pill">${Math.min(g.answered+(g.ended||g.locked?0:1),g.target)} / ${g.target}</span>${g.penalty?`<span class="pill" style="color:var(--bad)">+${g.penalty/1000}s</span>`:''}`:''}${g.double?'<span class="pill hot">×2 boost</span>':''}${save.freezes?`<span class="pill">Freezes ${save.freezes}</span>`:''}${levelPill()}`;
+  $('#streak').innerHTML=`<span class="pill ${mult>1?'hot':''}">Streak ${g.streak}${mult>1?' · ×'+mult:''}</span>${g.mode==='endless'?`<span class="pill">Solved ${g.solved}</span>`:''}${g.mode==='placement'?'<span class="pill hot">Placement</span>':g.mode==='daily'?`<span class="pill hot">Daily #${g.chNo}</span>`:''}${UP(g.mode)?`<span class="pill">${Math.min(g.answered+(g.ended||g.locked?0:1),g.target)} / ${g.target}</span>${g.penalty?`<span class="pill" style="color:var(--bad)">+${g.penalty/1000}s</span>`:''}`:''}${g.double?'<span class="pill hot">×2 boost</span>':''}${save.freezes?`<span class="pill">Freezes ${save.freezes}</span>`:''}${levelPill()}`;
 }
 function levelPill(){
   if(!g.p)return '';
@@ -997,8 +1211,10 @@ function levelPill(){
 function next(){
   g.count++;
   let p,guard=0;
-  const qi=g.queue.findIndex(q=>q.due<=g.count);
-  if(qi>=0){p=g.queue.splice(qi,1)[0].p;g.review=true;}
+  const qi=g.noQueue?-1:g.queue.findIndex(q=>q.due<=g.count);
+  if(g.mode==='daily'){g.review=false;p=Object.assign({},g.fixed[Math.min(g.count-1,g.fixed.length-1)]);}
+  else if(g.mode==='placement'){g.review=false;const op=PL_ORDER[(g.count-1)%PL_ORDER.length];do{p=gen(op,g.plv[op]);}while(p.text===g.prevText&&guard++<10);}
+  else if(qi>=0){p=g.queue.splice(qi,1)[0].p;g.review=true;}
   else{g.review=false;const op=pickOp(g.ops);do{p=gen(op,g.lv[op]);}while(p.text===g.prevText&&guard++<10);}
   g.p=p;g.prevText=p.text;g.input='';g.locked=false;g.t0=performance.now();
   $('#prob').innerHTML=p.parts.map(x=>x.t==='s'?`<span class="op">${x.v}</span>`:x.t==='f'?`<span class="frac"><span>${x.n}</span><span>${x.d}</span></span>`:`<span>${neg(x.v)}</span>`).join('');
@@ -1052,21 +1268,23 @@ function correct(v){
   const base=payFor(L)+(op==='frac'?1:0);
   const fast=dt<lim?1:0;
   g.missRun=0;
+  g.perf.push({L,r:dt/lim});recordSpeed(op,dt,lim);
+  if(g.mode==='daily')g.grid.push(1);
+  if(g.mode==='placement'){const st=[2,1,1,1][Math.min(3,g.pn[op])];g.pn[op]++;if(dt<lim*0.8)g.plv[op]=Math.min(9,g.plv[op]+st);}
   adjustLevel(op,dt<lim*0.6?0.4:dt<lim?0.25:0.05);
   const mult=g.streak>=25?3:g.streak>=10?2:1;
   const earn=(base+fast)*mult;
   g.base+=base;g.speed+=fast;g.mult+=earn-base-fast;g.times.push(dt);
   const o=save.ops[op];o.c++;o.a++;o.t+=dt;
   save.life.correct++;save.life.attempts++;
-  save.daily.correct++;dayRec(today()).c=save.daily.correct;
+  rollDaily();save.daily.correct++;dayRec(today()).c=save.daily.correct;
   if(!save.daily.claimed&&save.daily.correct>=goalN())claimDaily();
   const a=$('#ans');a.className='answer good pop';
   const simp=g.p.ans;const notSimple=v.d!==1&&(v.n!==simp.n||v.d!==simp.d)&&simp.d!==1?` · simplest is ${fmt(simp)}`:(v.d!==1&&simp.d===1?` · that's ${fmt(simp)}`:'');
   const fb=$('#fb');fb.className='feedback good';fb.textContent='✓ +'+(earn*(g.double?2:1))+(fast?' · fast':'')+notSimple;
   sfx('correct',g.streak,!!fast);
   if([10,25,50,100].includes(g.streak)){toast(g.streak+' in a row'+(g.streak===10?' · ×2 carries':g.streak===25?' · ×3 carries':''));if(fxOn('confetti'))burst('bits');setTimeout(()=>sfx('streak'),180);}
-  hud();
-  const done=g.mode==='race'&&raceAnswered();
+  const done=UP(g.mode)&&raceAnswered();
   hud();
   g.buf=[];g.buffering=!notSimple&&!done;
   const run=g;
@@ -1081,12 +1299,14 @@ function miss(typed){
   else g.streak=0;
   g.misses.push({q:g.p.text,a:fmt(g.p.ans),you:typed});
   g.p.tries=(g.p.tries||0)+1;
-  if(g.p.tries<=2)g.queue.push({p:g.p,due:g.count+rnd(3,5)});
+  if(!g.noQueue&&g.p.tries<=2)g.queue.push({p:g.p,due:g.count+rnd(3,5)});
+  if(g.mode==='daily')g.grid.push(0);
+  if(g.mode==='placement'){const op=g.p.op,st=[2,1,1,1][Math.min(3,g.pn[op])];g.pn[op]++;g.plv[op]=Math.max(1,g.plv[op]-st);}
   const a=$('#ans');a.className='answer bad';a.innerHTML=fmt(g.p.ans);
-  if(g.mode==='race')g.penalty+=RACE_PENALTY;
-  const fb=$('#fb');fb.className='feedback bad';fb.textContent=(typed?'✗ You wrote '+typed+'. ':'Skipped. ')+'Answer: '+fmt(g.p.ans)+(g.mode==='race'?' · +5s':'')+(froze?' · freeze saved your streak':'');
+  const pen=g.mode==='race'||g.mode==='daily';if(pen)g.penalty+=RACE_PENALTY;
+  const fb=$('#fb');fb.className='feedback bad';fb.textContent=(typed?'✗ You wrote '+typed+'. ':'Skipped. ')+'Answer: '+fmt(g.p.ans)+(pen?' · +5s':'')+(froze?' · freeze saved your streak':'');
   sfx(typed===null?'skip':'wrong');if(froze)setTimeout(()=>sfx('freeze'),220);buzz(60);
-  const done=g.mode==='race'&&raceAnswered();
+  const done=UP(g.mode)&&raceAnswered();
   hud();
   g.missWait=true;g.missAt=performance.now();g.missDone=done;
   const run=g,tok=++g.tok;
@@ -1099,80 +1319,119 @@ function afterMiss(){
   const ks=$('.key.enter');if(ks)ks.textContent='Check';
   if(g.missDone)finish(false);else next();
 }
+function doPlacement(){
+  const ops=Object.keys(OPS),avg=ops.reduce((a,o)=>a+g.plv[o],0)/ops.length;
+  const rs=g.perf.map(x=>x.r).sort((a,b)=>a-b),med=rs.length?rs[Math.floor(rs.length/2)]:1.5;
+  const sp=Math.max(-200,Math.min(300,(1-med)*400))*(avg/9);
+  const P=Math.max(0,Math.min(PLACEMENT_CAP,Math.round((avg-1)*230+80+sp)));
+  ['easy','standard','hard'].forEach(d=>ops.forEach(o=>{save.levels[d][o]=clampLv(g.plv[o],d);}));
+  const R=save.rank,first=R.rr==null;
+  if(first){R.rr=P;R.peak=P;R.placedAt=Date.now();R.shield=2;const ti=tierIndex(P);TIERS.forEach((t,i)=>{if(i<=ti&&!R.claimed.includes(t.id))R.claimed.push(t.id);});}
+  return{P,first,info:rankInfo(R.rr)};
+}
 function finish(early){
   if(!g||g.ended)return;
   g.ended=true;cancelAnimationFrame(rafId);unlockScreen();
   if(early&&g.attempts===0){if(g.double)save.double=true;closeLayer();return;}
+  const kind=g.mode,special=kind==='daily'||kind==='placement';
   let earned=g.base+g.speed+g.mult,boost=g.double?earned:0;
   let pb=false,pbBonus=0,prev=0;
-  if(g.mode==='sprint'&&!early){const k=bestKey(g);prev=save.bests[k]||0;if(g.solved>prev){save.bests[k]=g.solved;pb=true;pbBonus=prev>0?PB_BONUS:0;}}
-  let raceTime=0;
-  if(g.mode==='race'&&!early){
-    raceTime=Math.round((g.stopT||performance.now())-g.startT+g.penalty);
+  if(kind==='sprint'&&!early){const k=bestKey(g);prev=save.bests[k]||0;if(g.solved>prev){save.bests[k]=g.solved;pb=true;pbBonus=prev>0?PB_BONUS:0;}}
+  let runTime=0;
+  if(UP(kind)&&!early)runTime=Math.round((g.stopT||performance.now())-g.startT+g.penalty);
+  if(kind==='race'&&!early){
     const k=raceKey({count:g.target,diff:g.diff,ops:g.ops});prev=save.races[k]||0;
-    if(!prev||raceTime<prev){save.races[k]=raceTime;pb=true;pbBonus=prev>0?PB_BONUS:0;}
+    if(!prev||runTime<prev){save.races[k]=runTime;pb=true;pbBonus=prev>0?PB_BONUS:0;}
   }
   let streakRecord=false,prevStreak=0;
-  if(g.mode==='endless'){prevStreak=save.endless[g.diff]||0;if(g.best>prevStreak&&g.best>=5){save.endless[g.diff]=g.best;streakRecord=true;}}
+  if(kind==='endless'){prevStreak=save.endless[g.diff]||0;if(g.best>prevStreak&&g.best>=5){save.endless[g.diff]=g.best;streakRecord=true;}}
+  let chal=null;
+  if(kind==='daily'&&!early){
+    chal={no:g.chNo,time:runTime,solved:g.solved,grid:g.grid.join(''),official:g.official,prevRec:save.challenges[today()]||null};
+    if(g.official){save.challenges[today()]={no:g.chNo,time:runTime,solved:g.solved,grid:chal.grid};const ks=Object.keys(save.challenges).sort();while(ks.length>60)delete save.challenges[ks.shift()];}
+  }
+  const placed=kind==='placement'&&!early?doPlacement():null;
+  const ranked=!special&&save.rank.rr!=null&&g.attempts>=10;
+  const rk=ranked?applyRank(runPerformance(g.perf,g.attempts,g.solved),g.attempts):null;
   const total=earned+boost+pbBonus;
-  g.ops.forEach(o=>{if(g.lv[o]!==undefined)save.levels[g.diff][o]=Math.round(g.lv[o]*100)/100;});
-  const lvSummary=g.ops.map(o=>{const a0=Math.round(g.lv0[o]),a1=Math.round(g.lv[o]);return `<span class="pill${a1>a0?' hot':''}">${OPS[o].sym} Level ${a1}${a1>a0?' ▲':a1<a0?' ▼':''}</span>`;}).join('');
+  if(!special)g.ops.forEach(o=>{if(g.lv[o]!==undefined)save.levels[g.diff][o]=Math.round(g.lv[o]*100)/100;});
+  const lvSummary=kind==='placement'?Object.keys(OPS).map(o=>`<span class="pill">${OPS[o].sym} Level ${g.plv[o]}</span>`).join(''):g.ops.map(o=>{const a0=Math.round(g.lv0[o]),a1=Math.round(g.lv[o]);return `<span class="pill${a1>a0?' hot':''}">${OPS[o].sym} Level ${a1}${a1>a0?' ▲':a1<a0?' ▼':''}</span>`;}).join('');
   save.carries+=total;save.totalEarned+=total;
   save.life.bestStreak=Math.max(save.life.bestStreak,g.best);
   const acc=g.attempts?Math.round(g.solved/g.attempts*100):0;
-  save.history.unshift({at:Date.now(),mode:g.mode,dur:g.dur,count:g.target,time:raceTime||undefined,diff:g.diff,score:g.solved,acc,earned:total});
+  save.history.unshift({at:Date.now(),mode:kind,dur:g.dur,count:g.target,time:runTime||undefined,diff:g.diff,score:g.solved,acc,earned:total,rr:rk?rk.delta:undefined});
   save.history=save.history.slice(0,20);
   persist();
-  const r0=rankFor(g.startLife).name,r1=rankFor(save.life.correct).name;
   const avg=g.times.length?g.times.reduce((a,b)=>a+b,0)/g.times.length:0;
-  const title=g.mode==='sprint'?(early?'Sprint ended early':'Time'):g.mode==='race'?(early?'Race ended early':'Race finished'):'Endless run';
-  const isRace=g.mode==='race'&&!early;
+  const title={sprint:early?'Sprint ended early':'Time',race:early?'Race ended early':'Race finished',endless:'Endless run',
+    daily:`Daily Challenge #${g.chNo}${early?' · ended early':g.official?' · official':' · practice'}`,placement:early?'Placement stopped':'Placement test'}[kind];
+  const sub=special?'':` · ${DIFFS[g.diff]}${kind==='sprint'?' · '+(g.dur<60?g.dur+' sec':(g.dur/60)+' min'):kind==='race'?' · '+g.target+' problems':''}`;
+  const showTime=(kind==='race'||kind==='daily')&&!early;
+  let score;
+  if(placed)score=`<div class="placed">${emblem(placed.info.ti,92,placed.info.pips)}<div style="min-width:0"><span class="lbl">${placed.first?'You placed into':'Your rank stays'}</span><div class="rank-name big">${placed.info.label}</div><span class="muted">${placed.first?placed.P+' RR · ':''}Starting levels set for every difficulty</span></div></div>`;
+  else if(showTime)score=`<div class="score"><span class="big num">${fmtClock(runTime)}</span><span class="lbl">for ${g.target} problems</span>${pb?'<span class="badge">New record</span>':''}</div>`;
+  else score=`<div class="score"><span class="big num">${g.solved}</span><span class="lbl">correct</span>${pb?'<span class="badge">New record</span>':''}${streakRecord?'<span class="badge">Best streak yet</span>':''}</div>`;
+  let rankPanel='';
+  if(rk){const pct=rk.ia.hi?Math.round((rk.after-rk.ia.lo)/(rk.ia.hi-rk.ia.lo)*100):100;
+    rankPanel=`<div class="rk-panel">${emblem(rk.ia.ti,52,rk.ia.pips)}<div style="min-width:0"><div><b>${rk.ia.label}</b><span class="delta ${rk.delta>0?'up':rk.delta<0?'down':''}">${rk.delta>0?'+':''}${rk.delta} RR</span></div>
+      <p class="muted">${rk.divChange&&rk.delta>0?'Promoted from '+rk.ib.label:rk.divChange&&rk.delta<0?'Dropped from '+rk.ib.label:'This run played like '+labelOf(rk.P)+(g.attempts<20?' · short runs count half':'')}</p><div class="bar"><i style="width:${pct}%"></i></div></div></div>`;}
+  else if(!special&&save.rank.rr==null)rankPanel=`<div class="rk-panel">${emblem(-1,44)}<div style="min-width:0"><b>Unranked</b><p class="muted">Take the placement test to start earning rank.</p></div><button class="buy alt" data-act="placement">Find my rank</button></div>`;
+  else if(!special&&g.attempts<10)rankPanel=`<p class="muted" style="margin:0">Rank moves on runs of 10 or more problems.</p>`;
+  const chalPanel=chal?`<div class="card"><div class="egrid">${[...chal.grid].map(c=>`<i class="${c==='1'?'ok':'no'}"></i>`).join('')}</div>
+    <p class="muted" style="margin:10px 0">${chal.official?"This is your official time for today. Anyone on the same version of the app gets these exact problems.":`Practice attempt. Your official time today is ${fmtClock(chal.prevRec.time)} (${chal.prevRec.solved}/20).`}</p>
+    <div class="btnrow"><button class="buy" data-do="share">Copy result</button><span class="msg good" id="share-msg"></span></div></div>`:'';
+  const timeNote=kind==='race'&&!early?`<p class="muted" style="margin:8px 0 0">${g.solved} of ${g.target} correct${g.penalty?` · includes ${g.penalty/1000}s of miss penalties`:''}${!pb&&prev?` · record for this setup: ${fmtClock(prev)}`:''}</p>`
+    :kind==='daily'&&!early?`<p class="muted" style="margin:8px 0 0">${g.solved} of 20 correct${g.penalty?` · includes ${g.penalty/1000}s of miss penalties`:''}</p>`:'';
+  const celebrate=(rk&&rk.delta>0&&rk.divChange)||(placed&&placed.first);
+  const ci=placed?placed.info:rk?rk.ia:null;
+  const rankReward=rk?rk.reward:0;
   $('#layer').innerHTML=`<div class="screen results"><div class="sheet">
-    <div><p class="eyebrow">${title} · ${DIFFS[g.diff]}${g.mode==='sprint'?' · '+(g.dur<60?g.dur+' sec':(g.dur/60)+' min'):g.mode==='race'?' · '+g.target+' problems':''}</p>
-      <div class="score">${isRace?`<span class="big num">${fmtClock(raceTime)}</span><span class="lbl">for ${g.target} problems</span>`:`<span class="big num">${g.solved}</span><span class="lbl">correct</span>`}${pb?'<span class="badge">New record</span>':''}${streakRecord?'<span class="badge">Best streak yet</span>':''}${r0!==r1?`<span class="badge">Rank up: ${r1}</span>`:''}</div>
-      ${g.mode==='sprint'&&!pb&&prev?`<p class="muted" style="margin:8px 0 0">Record for this setup: ${prev}</p>`:''}
-      ${isRace?`<p class="muted" style="margin:8px 0 0">${g.solved} of ${g.target} correct${g.penalty?` · includes ${g.penalty/1000}s of miss penalties`:''}${!pb&&prev?` · record for this setup: ${fmtClock(prev)}`:''}</p>`:''}
-      ${g.mode==='endless'&&!streakRecord&&prevStreak?`<p class="muted" style="margin:8px 0 0">Best ${DIFFS[g.diff]} streak: ${prevStreak}</p>`:''}</div>
+    <div><p class="eyebrow">${title}${sub}</p>${score}
+      ${kind==='sprint'&&!pb&&prev?`<p class="muted" style="margin:8px 0 0">Record for this setup: ${prev}</p>`:''}${timeNote}
+      ${kind==='endless'&&!streakRecord&&prevStreak?`<p class="muted" style="margin:8px 0 0">Best ${DIFFS[g.diff]} streak: ${prevStreak}</p>`:''}</div>
+    ${rankPanel}${chalPanel}
     <div class="facts">
       <div class="fact"><b>${acc}%</b><span>Accuracy</span></div>
       <div class="fact"><b>${avg?fmtMs(avg):'–'}</b><span>Avg per answer</span></div>
       <div class="fact"><b>${g.best}</b><span>Best streak</span></div>
     </div>
     <div class="daily-line"><span>Today: <b>${save.daily.correct}</b> / ${goalN()} correct</span><span class="bar"><i style="width:${Math.min(100,Math.round(save.daily.correct/goalN()*100))}%"></i></span><span>${save.daily.claimed?'Goal done ✓':(goalN()-save.daily.correct)+' to go'}</span></div>
-    <div><p class="eyebrow">Where you ended up · ${DIFFS[g.diff]} runs levels ${BANDS[g.diff][0]}–${BANDS[g.diff][1]}</p><div class="boosts">${lvSummary}</div></div>
+    <div><p class="eyebrow">${kind==='placement'?'Levels found':kind==='daily'?'':'Where you ended up · '+DIFFS[g.diff]+' runs levels '+BANDS[g.diff][0]+'–'+BANDS[g.diff][1]}</p>${kind==='daily'?'':`<div class="boosts">${lvSummary}</div>`}</div>
     <div class="card"><p class="eyebrow">Carries earned</p>
       <table class="ledger"><tbody>
         <tr><td>Correct answers</td><td>+${g.base}</td></tr>
         <tr><td>Fast answers</td><td>+${g.speed}</td></tr>
         <tr><td>Streak multiplier</td><td>+${g.mult}</td></tr>
         ${g.double?`<tr><td>×2 boost</td><td>+${boost}</td></tr>`:''}
-        ${pbBonus?`<tr><td>New ${g.mode} record</td><td>+${pbBonus}</td></tr>`:''}
+        ${pbBonus?`<tr><td>New ${kind} record</td><td>+${pbBonus}</td></tr>`:''}
+        ${rankReward?`<tr><td>New tier: ${rk.ia.tier.name}</td><td>+${rankReward}</td></tr>`:''}
         ${g.dailyBonus?`<tr><td>Daily goal (already added)</td><td>+${g.dailyBonus}</td></tr>`:''}
-        <tr class="total"><td>Total</td><td>${coinSvg()} +${total+g.dailyBonus}</td></tr>
+        <tr class="total"><td>Total</td><td>${coinSvg()} +${total+g.dailyBonus+rankReward}</td></tr>
       </tbody></table></div>
     ${g.misses.length?`<div><p class="eyebrow">Review these (${g.misses.length})</p><ul class="misses">${g.misses.slice(0,12).map(m=>`<li><span class="q">${m.q} =</span><span>${m.you?`<span class="you">${m.you}</span>`:''}<span class="a">${m.a}</span></span></li>`).join('')}</ul></div>`:`<p class="muted" style="margin:0">No misses this run.</p>`}
-    <div class="row2"><button class="ghost" data-g="home">Done</button><button class="go" data-g="again">Again</button></div>
-  </div></div>`;
+    ${kind==='placement'?`<button class="go" data-g="home">Done</button>`:`<div class="row2"><button class="ghost" data-g="home">Done</button><button class="go" data-g="again">${kind==='daily'?'Practice':'Again'}</button></div>`}
+  </div>${celebrate&&ci?`<button class="promo" data-do="promo-close"><span class="promo-in">${emblem(ci.ti,150,ci.pips)}<span class="eyebrow">${placed?'Placement complete':ci.ti>rk.ib.ti?'New tier!':'Promoted!'}</span><span class="promo-t">${ci.label}</span>${rankReward?`<span class="promo-r">${coinSvg()} +${rankReward} carries</span>`:''}<span class="muted">Tap to continue</span></span></button>`:''}</div>`;
   g=null;resultsAt=Date.now();
-  sfx(pb||streakRecord||r0!==r1?'record':'finish');
-  if(total>0)setTimeout(()=>sfx('coins',Math.ceil(total/12)),pb||streakRecord?1100:650);
+  sfx(celebrate||pb||streakRecord?'record':'finish');
+  const coinsAt=celebrate?1500:pb||streakRecord?1100:650;
+  if(total+rankReward>0)setTimeout(()=>sfx('coins',Math.ceil((total+rankReward)/12)),coinsAt);
   if(fxOn('coins'))setTimeout(()=>burst('coins'),250);
-  if((pb||streakRecord)&&fxOn('confetti'))burst('bits');
-  renderPurse();
+  if(celebrate)setTimeout(()=>burst('bits'),200);else if((pb||streakRecord)&&fxOn('confetti'))burst('bits');
+  renderPurse();renderChip();
 }
 function closeLayer(){$('#layer').innerHTML='';g=null;unlockScreen();document.getElementById('nav').hidden=false;tab='play';render();}
 
 /* ---------- events ---------- */
 document.addEventListener('click',e=>{
   const bar=e.target.closest&&e.target.closest('[data-bar]');
-  if(bar){const n=document.getElementById('chart-note');if(n){n.textContent=bar.getAttribute('data-bar');}document.querySelectorAll('.bar-g.sel').forEach(x=>x.classList.remove('sel'));bar.classList.add('sel');return;}
+  if(bar){const n=document.getElementById(bar.getAttribute('data-note')||'chart-note');if(n){n.textContent=bar.getAttribute('data-bar');}document.querySelectorAll('.bar-g.sel').forEach(x=>x.classList.remove('sel'));bar.classList.add('sel');return;}
   const t=e.target.closest('button');if(!t)return;
   if(t.dataset.tab){sfx('tap');tab=t.dataset.tab;confirmReset=false;exportShown=false;exportMsg='';importMsg='';pendingImport=null;render();window.scrollTo(0,0);return;}
   if(t.dataset.k){if(performance.now()-lastPtr>700)press(t.dataset.k);return;}
   if(t.dataset.g){const a=t.dataset.g;
     if(a==='end')finish(true);
     else if(a==='home')closeLayer();
-    else if(a==='again'){$('#layer').innerHTML='';startRun();}
+    else if(a==='again'){$('#layer').innerHTML='';startRun(lastKind==='placement'?undefined:lastKind);}
     return;}
   if(t.dataset.mode||t.dataset.dur||t.dataset.count||t.dataset.diff||t.dataset.op||t.dataset.tab===undefined&&t.dataset.act)sfx('tap');
   const s=save.set;
@@ -1185,13 +1444,21 @@ document.addEventListener('click',e=>{
     if(i>=0){if(s.ops.length===1){toast('Keep at least one operation');return;}s.ops.splice(i,1);}else s.ops.push(k);
     s.ops.sort((a,b)=>Object.keys(OPS).indexOf(a)-Object.keys(OPS).indexOf(b));persist();render();return;}
   if(t.dataset.act==='start'){startRun();return;}
+  if(t.dataset.act==='daily'||t.dataset.act==='placement'){sfx('tap');shareMsg='';$('#layer').innerHTML='';startRun(t.dataset.act);return;}
+  if(t.dataset.speedop){speedOp=t.dataset.speedop;render();return;}
   const d=t.dataset.do;if(!d)return;
   if(d==='buy'){const kind=t.dataset.kind,id=t.dataset.id,item=(kind==='skins'?SKINS:kind==='inks'?INKS:kind==='sounds'?SOUNDS:FX)[id];
-    if(save.carries<item.price)return;save.carries-=item.price;save.owned[kind].push(id);
+    if(save.carries<item.price||(item.rank!=null&&curTi()<item.rank)||save.owned[kind].includes(id))return;save.carries-=item.price;save.owned[kind].push(id);
     if(kind==='skins')save.eq.skin=id;else if(kind==='inks')save.eq.ink=id;else if(kind==='sounds')save.eq.sound=id;else save.eq.fx[id]=true;
     persist();applyLook();render();toast(item.name+' unlocked');sfx('buy');if(kind==='sounds')setTimeout(()=>sfx('preview'),700);
     if(kind==='fx'){burst(id==='coins'?'coins':'bits');}return;}
   if(d==='equip'){const kind=t.dataset.kind,id=t.dataset.id;if(kind==='skins')save.eq.skin=id;else if(kind==='sounds')save.eq.sound=id;else save.eq.ink=id;persist();applyLook();render();sfx(kind==='sounds'?'preview':'tap');return;}
+  if(d==='promo-close'){t.remove();return;}
+  if(d==='share'){const rec=save.challenges[today()];if(!rec)return;const txt=shareText(rec);
+    copyText(txt,ok=>{const m=document.getElementById('share-msg');
+      if(ok){if(m)m.textContent='Copied';else{shareMsg='Copied';render();setTimeout(()=>{shareMsg='';if(tab==='play'&&!g&&!$('#layer').innerHTML)render();},2500);}toast('Result copied. Paste it in a text.');}
+      else{const ta=document.createElement('textarea');ta.className='code';ta.readOnly=true;ta.value=txt;t.parentElement.after(ta);ta.focus();ta.select();toast('Select the text and copy it');}});
+    return;}
   if(d==='togglefx'){const id=t.dataset.id;save.eq.fx[id]=!save.eq.fx[id];persist();render();return;}
   if(d==='power'){const id=t.dataset.id,item=POWER[id];if(save.carries<item.price)return;
     if(id==='freeze'){if(save.freezes>=3)return;save.freezes++;}else{if(save.double)return;save.double=true;}
@@ -1232,7 +1499,7 @@ document.addEventListener('keydown',e=>{
       const b=document.querySelector(`.key[data-k="${k}"]`);if(b){b.classList.add('down');ripple(b);setTimeout(()=>b.classList.remove('down'),110);}}
     return;
   }
-  if($('#layer').innerHTML&&(e.key==='Enter'||e.key==='Escape')){e.preventDefault();if(Date.now()-resultsAt<900||e.repeat)return;e.key==='Enter'?($('#layer').innerHTML='',startRun()):closeLayer();}
+  if($('#layer').innerHTML&&(e.key==='Enter'||e.key==='Escape')){e.preventDefault();if(Date.now()-resultsAt<900||e.repeat)return;const pr=document.querySelector('.promo');if(pr){pr.remove();return;}e.key==='Enter'&&lastKind!=='placement'?($('#layer').innerHTML='',startRun(lastKind)):closeLayer();}
 });
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'){writeLocal();if(cloud.ref&&!g)flushCloud();}else if(g&&!g.ended)lockScreen();});
 
