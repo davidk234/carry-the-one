@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Carry the One">
-<meta name="ctone-pwa" content="1.8">
+<meta name="ctone-pwa" content="1.8.1">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -54,7 +54,9 @@
 
 *{box-sizing:border-box}
 html,body{height:100%}
-html{overscroll-behavior:none}
+html{overscroll-behavior:none;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+*,*::before,*::after{touch-action:manipulation}
+button,.chip,.mode,.seg,.nav{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 body{background-color:var(--bg); color:var(--fg); font-family:var(--font-body); font-size:15px; line-height:1.45;-webkit-tap-highlight-color:transparent}
 body,.screen{
   background-image:
@@ -382,8 +384,9 @@ h2.title{font-family:var(--font-num);font-weight:900;font-size:40px;line-height:
 /* ---------- constants ---------- */
 const PB_BONUS=25;
 const GOALS=[25,50,100,200];
-const APP_VERSION='1.8';
+const APP_VERSION='1.8.1';
 const CHANGELOG=[
+  ['1.8.1','Oct 10, 2026',['iPhone no longer zooms in when you tap buttons quickly']],
   ['1.8','Oct 10, 2026',['Ranked tiers from Bronze to Champion, with rewards and rank-locked items','Placement test, Daily Challenge, speed-over-time chart, plus fixes']],
   ['1.7','Oct 9, 2026',['Answers are checked only when you tap Check or press Enter','Check glows when ready, Enter skips past a miss, hold ⌫ to clear, long problems fit the screen']],
   ['1.6','Oct 8, 2026',['Daily target you choose: 25, 50, 100 or 200 correct, with bigger rewards','7-day goal strip and a 14-day practice chart in Stats']],
@@ -1501,6 +1504,17 @@ document.addEventListener('keydown',e=>{
   }
   if($('#layer').innerHTML&&(e.key==='Enter'||e.key==='Escape')){e.preventDefault();if(Date.now()-resultsAt<900||e.repeat)return;const pr=document.querySelector('.promo');if(pr){pr.remove();return;}e.key==='Enter'&&lastKind!=='placement'?($('#layer').innerHTML='',startRun(lastKind)):closeLayer();}
 });
+let lastTouchEnd=0;
+document.addEventListener('touchend',e=>{
+  const now=Date.now(),t=e.target;
+  if(now-lastTouchEnd<=350&&!(t.closest&&t.closest('input,textarea,select'))){
+    e.preventDefault();
+    const b=t.closest&&t.closest('button,[data-bar]');
+    if(b&&!b.closest('#pad'))b.dispatchEvent(new MouseEvent('click',{bubbles:true,cancelable:true}));
+  }
+  lastTouchEnd=now;
+},{passive:false});
+document.addEventListener('dblclick',e=>e.preventDefault(),{passive:false});
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'){writeLocal();if(cloud.ref&&!g)flushCloud();}else if(g&&!g.ended)lockScreen();});
 
 /* ---------- boot ---------- */
