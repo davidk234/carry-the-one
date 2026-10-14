@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Carry the One">
-<meta name="ctone-pwa" content="1.9">
+<meta name="ctone-pwa" content="1.9.1">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -418,8 +418,9 @@ h2.title{font-family:var(--font-num);font-weight:900;font-size:40px;line-height:
 /* ---------- constants ---------- */
 const PB_BONUS=25;
 const GOALS=[25,50,100,200];
-const APP_VERSION='1.9';
+const APP_VERSION='1.9.1';
 const CHANGELOG=[
+  ['1.9.1','Oct 14, 2026',['Space bar now checks your answer, just like Enter','S skips a problem on a keyboard']],
   ['1.9','Oct 12, 2026',['Shortcuts after every miss show the fast way to do it','Duel mode for two players on one device, and a weekly report in Stats']],
   ['1.8.1','Oct 10, 2026',['iPhone no longer zooms in when you tap buttons quickly']],
   ['1.8','Oct 10, 2026',['Ranked tiers from Bronze to Champion, with rewards and rank-locked items','Placement test, Daily Challenge, speed-over-time chart, plus fixes']],
@@ -1380,7 +1381,7 @@ function startRun(kind){
         const aria={back:'Delete','/':'Fraction bar','-':'Negative sign',skip:'Skip',enter:'Check answer'}[k]||k;
         return `<button class="${cls}" data-k="${k}" aria-label="${aria}">${lbl}</button>`;}).join('')}
     </div>
-    <p class="kbd-hint">Type with your keyboard · Enter to check · Space to skip · Esc to end</p>
+    <p class="kbd-hint">Type with your keyboard · Enter or Space to check · S to skip · Esc to end</p>
     <p class="kbd-hint touch-hint">Hold ⌫ to clear your answer</p>
   </div></div>`;
   document.getElementById('nav').hidden=true;
@@ -1476,7 +1477,7 @@ function next(){
   const fb=$('#fb');fb.className='feedback note';
   const tipLeft=save.tips&&save.tips.check>0;
   if(tipLeft)save.tips.check--;
-  fb.textContent=tipLeft?'Type your answer, then tap Check (or press Enter)':g.review?'Second look: you missed this one earlier':(p.op==='frac'&&save.ops.frac.c<15?'Answer as a fraction like 7/12':'');
+  fb.textContent=tipLeft?'Type your answer, then tap Check (or press Enter or Space)':g.review?'Second look: you missed this one earlier':(p.op==='frac'&&save.ops.frac.c<15?'Answer as a fraction like 7/12':'');
   hud();
   const buf=g.buf;g.buf=[];g.buffering=false;
   for(const k of buf){if(g.locked)break;press(k);}
@@ -1758,7 +1759,8 @@ document.addEventListener('keydown',e=>{
     else if(e.key==='-'||e.key==='_')k='-';
     else if(e.key==='Backspace')k='back';
     else if(e.key==='Enter')k='enter';
-    else if(e.key===' ')k='skip';
+    else if(e.key===' '||e.key==='Spacebar')k='enter';
+    else if(e.key==='s'||e.key==='S')k='skip';
     else if(e.key==='Escape'){e.preventDefault();finish(true);return;}
     if(k){e.preventDefault();if(e.repeat&&(k==='enter'||k==='skip'))return;if(!(g.locked&&!g.buffering))sfx('key',k);press(k);
       const b=document.querySelector(`.key[data-k="${k}"]`);if(b){b.classList.add('down');ripple(b);setTimeout(()=>b.classList.remove('down'),110);}}
