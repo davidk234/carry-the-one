@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Carry the One">
-<meta name="ctone-pwa" content="2.2">
+<meta name="ctone-pwa" content="2.3">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -72,11 +72,14 @@ button:focus-visible,[tabindex]:focus-visible{outline:3px solid var(--fg);outlin
 
 .app{max-width:960px;margin:0 auto;padding-inline:16px;padding-block:14px 110px}
 .top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:4px 18px}
-.wordmark{font-family:var(--font-num);font-weight:900;font-size:30px;letter-spacing:.01em;text-transform:uppercase;line-height:1;display:flex;align-items:flex-start;gap:2px;margin:0}
+.wordmark{font-family:var(--font-num);font-weight:900;font-size:30px;letter-spacing:.01em;text-transform:uppercase;line-height:1;display:flex;align-items:flex-start;gap:2px;margin:0;white-space:nowrap;flex:none}
 .wordmark sup{font-size:13px;line-height:1;background:var(--hl);color:var(--hl-ink);border:2px solid var(--fg);border-radius:50%;width:20px;height:20px;display:inline-grid;place-items:center;margin-top:-6px;font-family:var(--font-body);font-weight:800}
 .purse{display:inline-flex;align-items:center;gap:8px;background:var(--surface);border:1.5px solid var(--fg);border-radius:999px;padding:5px 14px 5px 6px;font-weight:800;font-size:18px;box-shadow:0 2px 0 var(--fg)}
 .purse svg{width:24px;height:24px;flex:none}
 .purse small{font-weight:600;color:var(--muted);font-size:12px}
+/* phones: the header must stay on one line however many carries you have */
+@media (max-width:460px){.purse small{display:none}.purse{padding-right:12px}.wordmark{font-size:27px}}
+@media (max-width:350px){.top{gap:8px}.wordmark{font-size:22px}.wordmark sup{width:17px;height:17px;font-size:11px;margin-top:-5px}.purse{font-size:16px;gap:6px;padding:4px 10px 4px 5px}.purse svg{width:20px;height:20px}}
 .coin{display:inline-block;vertical-align:-4px}
 
 .eyebrow{font-size:11px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin:0 0 8px}
@@ -143,8 +146,9 @@ h2.title{font-family:var(--font-num);font-weight:900;font-size:40px;line-height:
 .run-carries svg{width:22px;height:22px}
 .tbar{height:8px;border:1.5px solid var(--fg);border-radius:99px;overflow:hidden;background:var(--surface)}
 .tbar i{display:block;height:100%;width:100%;background:var(--hl);transform-origin:left center}
-.streak{display:flex;justify-content:center;gap:8px;min-height:30px}
-.pill{display:inline-flex;align-items:center;gap:6px;border:1.5px solid var(--line);background:var(--surface);border-radius:99px;padding:3px 12px;font-size:13.5px;font-weight:800}
+.streak{display:flex;justify-content:center;flex-wrap:wrap;gap:6px 8px;min-height:30px}
+.pill{display:inline-flex;align-items:center;gap:6px;border:1.5px solid var(--line);background:var(--surface);border-radius:99px;padding:3px 12px;font-size:13.5px;font-weight:800;white-space:nowrap}
+@media (max-width:420px){.streak{gap:6px}.streak .pill{padding:3px 9px;font-size:12.5px}}
 .pill.hot{border-color:var(--fg);background:var(--hl);color:var(--hl-ink)}
 .pill.lvl.up{border-color:var(--good);color:var(--good)}
 .pill.lvl.down{border-color:var(--bad);color:var(--bad)}
@@ -256,7 +260,7 @@ h2.title{font-family:var(--font-num);font-weight:900;font-size:40px;line-height:
 .tablewrap{overflow-x:auto}
 .list{list-style:none;margin:0;padding:0;display:grid}
 .list li{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px dashed var(--line);font-size:14px;font-variant-numeric:tabular-nums}
-.list li b{font-weight:800}
+.list li b{font-weight:800;white-space:nowrap;text-align:right}
 .empty{border:1.5px dashed var(--line);border-radius:14px;padding:16px;color:var(--muted);font-size:14px;text-align:center}
 .setting{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 0;border-bottom:1px dashed var(--line)}
 .setting:last-child{border-bottom:0}
@@ -393,6 +397,11 @@ h2.title{font-family:var(--font-num);font-weight:900;font-size:40px;line-height:
 @media (max-width:520px){.arc-powers{grid-template-columns:1fr}}
 .arc-soon{opacity:.75}
 .arc-play{margin-top:12px}
+.pips{display:inline-flex;gap:3px;align-items:center}
+.pips i{width:9px;height:9px;border-radius:50%;border:1.5px solid var(--muted);box-sizing:border-box}
+.pips i.ok{background:var(--hl);border-color:var(--fg)}
+.pips i.slip{background:var(--bad);border-color:var(--bad)}
+.pips i.skip{border-style:dashed;opacity:.6}
 .arc-hero+.arc-hero{margin-top:12px}
 .ag-screen .inv-pad .key.fire{font-size:22px}
 .inv-wave{overflow:hidden;text-overflow:ellipsis;min-width:0}
@@ -444,6 +453,27 @@ h2.title{font-family:var(--font-num);font-weight:900;font-size:40px;line-height:
 @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
 @keyframes pop{0%{transform:scale(1)}40%{transform:scale(1.12)}100%{transform:scale(1)}}
 .pop{animation:pop .3s}
+/* very narrow phones: the game label gets its own line under the hearts */
+@media (max-width:350px){.inv-hud{flex-wrap:wrap;row-gap:2px}.inv-meta{order:5;flex-basis:100%}}
+/* phones turned sideways: the keypad sits beside the problem instead of under it */
+@media (orientation:landscape) and (max-height:520px){
+  .screen{padding-block:calc(env(safe-area-inset-top,0px) + 6px) calc(env(safe-area-inset-bottom,0px) + 6px);padding-inline:max(16px,env(safe-area-inset-left,0px)) max(16px,env(safe-area-inset-right,0px))}
+  #game .screen-in,.inv-in{display:grid;max-width:none;grid-template-columns:minmax(0,1fr) minmax(250px,42%);column-gap:16px;row-gap:6px}
+  #game .screen-in{grid-template-rows:auto auto auto minmax(0,1fr)}
+  #game .hud,#game .tbar,#game .streak,#game .stage{grid-column:1}
+  #game .stage{overflow:hidden}
+  #game .pad{grid-column:2;grid-row:1/-1;align-self:center}
+  #game .kbd-hint{display:none}
+  #game .problem{font-size:clamp(40px,15vh,76px)}
+  #game .answer{font-size:clamp(30px,10vh,52px)}
+  #game .tip{font-size:12px;padding:6px 10px}
+  #game .key,.inv-pad .key{height:clamp(38px,16.5vh,58px)}
+  .inv-in{grid-template-rows:auto minmax(0,1fr) auto}
+  .inv-in .inv-hud{grid-column:1;grid-row:1}
+  .inv-in .inv-stage{grid-column:1;grid-row:2/4;min-height:0}
+  .inv-in .inv-ansrow{grid-column:2;grid-row:1/3;align-self:end}
+  .inv-in .inv-pad{grid-column:2;grid-row:3;align-self:end;max-width:none}
+}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 
@@ -479,8 +509,9 @@ h2.title{font-family:var(--font-num);font-weight:900;font-size:40px;line-height:
 /* ---------- constants ---------- */
 const PB_BONUS=25;
 const GOALS=[25,50,100,200];
-const APP_VERSION='2.2';
+const APP_VERSION='2.3';
 const CHANGELOG=[
+  ['2.3','Nov 16, 2026',['Polish pass: fairer Gate Runner walls (one slip per set is forgiven), Dungeon monsters that give harder problems more time, gentler first bosses','Fixes for the phone header, duel name boxes, crowded HUD pills and more, plus Arcade high scores in Stats']],
   ['2.2','Nov 12, 2026',['Two new Arcade games: Gate Runner and Dungeon Duel','Ink Invaders adds armored invaders, and every game keeps getting harder, with Overdrive levels past 9']],
   ['2.1','Nov 9, 2026',['Ink Invaders: every kind of problem fires its own laser color','Punchier hits, diver warnings, danger-line alarm, drifting stars, power-up countdown']],
   ['2.0','Nov 9, 2026',['New Arcade tab with the first game: Ink Invaders','Type an answer and fire at the invader it solves. Divers, bosses and power-ups']],
@@ -929,7 +960,6 @@ function explain(p){
         return [`Split ${big} by place: ${pv.map((x,i)=>`${x} × ${sm} = ${prods[i]}`).join(', ')}`,`add them: ${prods.join(' + ')} = ${ans}`];
       }
       if(a!==b&&(a+b)%2===0&&((a+b)/2)%10===0){const m=(a+b)/2,d=Math.abs(a-b)/2;return [`Both are ${d} from ${m}: ${m} × ${m} = ${m*m}`,`${d} × ${d} = ${d*d}`,`${m*m} − ${d*d} = ${ans}`];}
-      if(sm===5){return [`Times 5 is half of times 10: ${big} × 10 = ${big*10}`,`÷ 2 = ${ans}`];}
       if(sm===11){return [`Times 11: ${big} × 10 = ${big*10}`,`+ ${big} = ${ans}`];}
       if(sm===25&&big%4===0){return [`Times 25 is a quarter of 100: ${big} ÷ 4 = ${big/4}`,`× 100 = ${ans}`];}
       if(big<100&&big%10>=8&&sm%10<8){const up=roundUp(big);return [`Round ${big} up to ${up}: ${sm} × ${up} = ${sm*up}`,`take back ${sm} × ${up-big} = ${sm*(up-big)}: ${sm*up} − ${sm*(up-big)} = ${ans}`];}
@@ -1110,7 +1140,7 @@ function homeHTML(){
       </div>
     </section>
     ${s.mode==='duel'?`<section><p class="eyebrow">Players</p><div class="duel-names"><input id="duel-n1" maxlength="16" autocomplete="off" value="${esc(save.duel.names[0])}" aria-label="First player's name"><span class="vs">vs</span><input id="duel-n2" maxlength="16" autocomplete="off" value="${esc(save.duel.names[1])}" aria-label="Second player's name"></div>
-      ${(()=>{const r=duelRecord(save.duel.names);return r[0]+r[1]+r[2]?`<p class="h2h small">Head to head: <b>${esc(save.duel.names[0])} ${r[0]}</b> – <b>${r[1]} ${esc(save.duel.names[1])}</b>${r[2]?' · '+r[2]+' tie'+(r[2]>1?'s':''):''}</p>`:'';})()}</section>
+      <div id="duel-h2h">${duelH2H()}</div></section>
     <section><p class="eyebrow">Problems each</p><div class="seg">${[10,20].map(n=>`<button data-duelcount="${n}" aria-pressed="${(save.duel.count||10)===n}">${n} problems</button>`).join('')}</div></section>`:''}
     ${s.mode==='race'?`<section><p class="eyebrow">Problems</p><div class="seg">${[10,20,50].map(n=>`<button data-count="${n}" aria-pressed="${s.count===n}">${n} problems</button>`).join('')}</div></section>`:''}
     ${s.mode==='sprint'?`<section><p class="eyebrow">Clock</p><div class="seg">${[30,60,120].map(t=>`<button data-dur="${t}" aria-pressed="${s.dur===t}">${t<60?t+' sec':(t/60)+' min'}</button>`).join('')}</div></section>`:''}
@@ -1147,6 +1177,7 @@ function homeHTML(){
   </div></div>`;
 }
 
+function duelH2H(){const r=duelRecord(save.duel.names);return r[0]+r[1]+r[2]?`<p class="h2h small">Head to head: <b>${esc(save.duel.names[0])} ${r[0]}</b> – <b>${r[1]} ${esc(save.duel.names[1])}</b>${r[2]?' · '+r[2]+' tie'+(r[2]>1?'s':''):''}</p>`:'';}
 function rankCard(){
   const R=save.rank;
   if(R.rr==null)return `<div class="card rank rankcard"><div class="rk-top">${emblem(-1,64)}<div style="min-width:0"><p class="eyebrow" style="margin:0">Rank</p><div class="rank-name">Unranked</div><p>A 20-problem placement test finds your rank and sets your starting levels.</p></div></div><button class="go small-go" data-act="placement">Find my rank</button></div>`;
@@ -1203,6 +1234,7 @@ function shopHTML(){
         <li>Streaks multiply everything: <b>×2</b> from 10 in a row, <b>×3</b> from 25</li>
         <li><b>+100 to +2,000</b> the first time you reach each rank tier, and some items unlock only at higher ranks</li>
         <li><b>+15 to +120</b> for the daily goal, depending on your target, <b>+${PB_BONUS}</b> for beating a sprint or race record</li>
+        <li>The <b>Arcade</b> pays for every correct answer, plus a bonus for each wave, wall or floor you clear</li>
       </ul></div>
     <section class="section"><div class="section-h"><h3>Power-ups</h3><p>Used up when they fire</p></div>
       <div class="grid">
@@ -1315,6 +1347,12 @@ function decodeSave(code){
     if(!o||typeof o!=='object'||typeof o.carries!=='number'||!o.life||!o.ops)return null;
     return migrate(o);}catch(e){return null;}
 }
+const opSyms=ops=>ops.split('+').sort((a,b)=>Object.keys(OPS).indexOf(a)-Object.keys(OPS).indexOf(b)).map(o=>OPS[o]?OPS[o].sym:o).join(' ');
+function arcadeScores(){
+  const A=save.arcade,rows=[['Ink Invaders',A.inv,'wave',A.inv.bestWave],['Gate Runner',A.runner,'set',A.runner.bestStep],['Dungeon Duel',A.dungeon,'floor',A.dungeon.bestStep]].filter(r=>r[1]&&r[1].plays);
+  if(!rows.length)return `<div class="empty">Your high scores from the Arcade games show up here.</div>`;
+  return `<ul class="list">${rows.map(r=>`<li><span>${r[0]} · best ${r[2]} ${r[3]||1} · ${r[1].plays} game${r[1].plays>1?'s':''}</span><b>${(r[1].best||0).toLocaleString()}</b></li>`).join('')}</ul>`;
+}
 function statsHTML(){
   const L=save.life,acc=L.attempts?Math.round(L.correct/L.attempts*100):0;
   const rows=Object.keys(OPS).filter(k=>save.ops[k].a>0);
@@ -1326,9 +1364,9 @@ function statsHTML(){
     ${slowest?`<p class="muted" style="margin:6px 0 0;font-size:13.5px">Slowest relative to target: <b style="color:var(--fg)">${OP_NAMES[slowest]}</b>. A few ${OP_NAMES[slowest].toLowerCase()}-only sprints will move this number fastest.</p>`:''}`
     :`<div class="empty">Finish a run to see your speed and accuracy for each operation.</div>`;
   const bests=Object.entries(save.bests).sort((a,b)=>b[1]-a[1]).slice(0,8);
-  const bestHTML=bests.length?`<ul class="list">${bests.map(([k,v])=>{const [dur,diff,ops]=k.split('|');return `<li><span>${dur<60?dur+'s':(dur/60)+' min'} · ${DIFFS[diff]} · ${ops.split('+').map(o=>OPS[o]?OPS[o].sym:o).join(' ')}</span><b>${v}</b></li>`;}).join('')}</ul>`:`<div class="empty">Sprint records show up here, one per clock, difficulty and operation mix.</div>`;
+  const bestHTML=bests.length?`<ul class="list">${bests.map(([k,v])=>{const [dur,diff,ops]=k.split('|');return `<li><span>${dur<60?dur+'s':(dur/60)+' min'} · ${DIFFS[diff]} · ${opSyms(ops)}</span><b>${v}</b></li>`;}).join('')}</ul>`:`<div class="empty">Sprint records show up here, one per clock, difficulty and operation mix.</div>`;
   const races=Object.entries(save.races).sort((a,b)=>(+a[0].split('|')[0])-(+b[0].split('|')[0])||a[1]-b[1]).slice(0,8);
-  const raceHTML=races.length?`<ul class="list">${races.map(([k,v])=>{const [n,diff,ops]=k.split('|');return `<li><span>${n} problems · ${DIFFS[diff]} · ${ops.split('+').map(o=>OPS[o]?OPS[o].sym:o).join(' ')}</span><b>${fmtClock(v)}</b></li>`;}).join('')}</ul>`:`<div class="empty">Race records show your fastest time for each problem count, difficulty and operation mix.</div>`;
+  const raceHTML=races.length?`<ul class="list">${races.map(([k,v])=>{const [n,diff,ops]=k.split('|');return `<li><span>${n} problems · ${DIFFS[diff]} · ${opSyms(ops)}</span><b>${fmtClock(v)}</b></li>`;}).join('')}</ul>`:`<div class="empty">Race records show your fastest time for each problem count, difficulty and operation mix.</div>`;
   const hist=save.history.slice(0,8);
   const histHTML=hist.length?`<ul class="list">${hist.map(h=>{const d=new Date(h.at);return `<li><span>${d.toLocaleDateString(undefined,{month:'short',day:'numeric'})} · ${h.mode==='sprint'?(h.dur<60?h.dur+'s':(h.dur/60)+' min')+' sprint · '+DIFFS[h.diff]:h.mode==='race'?h.count+'-problem race · '+DIFFS[h.diff]:h.mode==='daily'?'Daily Challenge':h.mode==='placement'?'Placement test':'Endless · '+DIFFS[h.diff]}</span><b>${(h.mode==='race'||h.mode==='daily')&&h.time?fmtClock(h.time)+' · '+h.acc+'%':h.score+' correct · '+h.acc+'%'}${typeof h.rr==='number'&&h.rr?`<span class="delta ${h.rr>0?'up':'down'}">${h.rr>0?'+':''}${h.rr}</span>`:''}</b></li>`;}).join('')}</ul>`:`<div class="empty">Your last eight runs will be listed here.</div>`;
   const syncText={cloud:'Saved to your Claude account, so your phone and computer share progress.',retry:'Saved on this device. Syncing to your account will retry on the next save.',device:IS_PWA?'Saved on this device, works with no internet. Use a save code to move progress to another device.':'Saved in this browser only. Use a save code to move progress to another device.',checking:'Checking for saved progress on your account…'}[cloud.status];
@@ -1348,6 +1386,7 @@ function statsHTML(){
     <section class="section"><div class="section-h"><h3>By operation</h3><p>Average time counts correct answers only</p></div>${table}</section>
     <section class="section"><div class="section-h"><h3>Sprint records</h3></div>${bestHTML}</section>
     <section class="section"><div class="section-h"><h3>Race records</h3><p>Fastest times, misses included</p></div>${raceHTML}</section>
+    <section class="section"><div class="section-h"><h3>Arcade high scores</h3><p>Points, not carries</p></div>${arcadeScores()}</section>
     <section class="section"><div class="section-h"><h3>Recent runs</h3></div>${histHTML}</section>
     <section class="section"><div class="section-h"><h3>Daily Challenge</h3><p>${chalStreak()?chalStreak()+' day streak':'Official times only'}</p></div>${chalHistory()}</section>
     <section class="section"><div class="section-h"><h3>What's new</h3><p>You're on v${APP_VERSION}</p></div>
@@ -1380,9 +1419,15 @@ function pickOp(ops){
   for(let i=0;i<ops.length;i++){r-=w[i];if(r<=0)return ops[i];}
   return ops[ops.length-1];
 }
-let wake=null;
-async function lockScreen(){try{if('wakeLock' in navigator)wake=await navigator.wakeLock.request('screen');}catch(e){wake=null;}}
-function unlockScreen(){try{if(wake)wake.release();}catch(e){}wake=null;}
+let wake=null,wakeWant=false;
+async function lockScreen(){
+  wakeWant=true;
+  try{if(!('wakeLock' in navigator)||(wake&&!wake.released))return;
+    const w=await navigator.wakeLock.request('screen');
+    if(wakeWant)wake=w;else w.release();   // the game ended while we were asking
+  }catch(e){wake=null;}
+}
+function unlockScreen(){wakeWant=false;try{if(wake)wake.release();}catch(e){}wake=null;}
 function buzz(ms){try{if(navigator.vibrate)navigator.vibrate(ms);}catch(e){}}
 let resultsAt=0;
 let g=null,rafId=0,lastKind='sprint';
@@ -1536,7 +1581,7 @@ function hud(){
   const mult=g.streak>=25?3:g.streak>=10?2:1;
   const earned=(g.base+g.speed+g.mult)*(g.double?2:1);
   $('#runc').innerHTML=g.mode==='duel'?`<span class="duel-who">${esc(g.duel.names[g.duel.turn])}</span>`:coinSvg()+'<span class="num">+'+earned+'</span>';
-  $('#streak').innerHTML=`<span class="pill ${mult>1?'hot':''}">Streak ${g.streak}${mult>1?' · ×'+mult:''}</span>${g.mode==='endless'?`<span class="pill">Solved ${g.solved}</span>`:''}${g.mode==='duel'?`<span class="pill hot">Duel · ${g.duel.turn?'2nd':'1st'} player</span>`:g.mode==='placement'?'<span class="pill hot">Placement</span>':g.mode==='daily'?`<span class="pill hot">Daily #${g.chNo}</span>`:''}${UP(g.mode)?`<span class="pill">${Math.min(g.answered+(g.ended||g.locked?0:1),g.target)} / ${g.target}</span>${g.penalty?`<span class="pill" style="color:var(--bad)">+${g.penalty/1000}s</span>`:''}`:''}${g.double?'<span class="pill hot">×2 boost</span>':''}${save.freezes?`<span class="pill">Freezes ${save.freezes}</span>`:''}${levelPill()}`;
+  $('#streak').innerHTML=`<span class="pill ${mult>1?'hot':''}">Streak ${g.streak}${mult>1?' · ×'+mult:''}</span>${g.mode==='endless'?`<span class="pill">Solved ${g.solved}</span>`:''}${g.mode==='duel'?`<span class="pill hot">${g.duel.turn?'2nd':'1st'} player</span>`:g.mode==='placement'?'<span class="pill hot">Placement</span>':g.mode==='daily'?`<span class="pill hot">Daily #${g.chNo}</span>`:''}${UP(g.mode)?`<span class="pill">${Math.min(g.answered+(g.ended||g.locked?0:1),g.target)} / ${g.target}</span>${g.penalty?`<span class="pill" style="color:var(--bad)">+${g.penalty/1000}s</span>`:''}`:''}${g.double?'<span class="pill hot">×2 boost</span>':''}${save.freezes?`<span class="pill">Freezes ${save.freezes}</span>`:''}${levelPill()}`;
 }
 function levelPill(){
   if(!g.p)return '';
@@ -1836,8 +1881,8 @@ document.addEventListener('click',e=>{
 });
 document.addEventListener('input',e=>{if(e.target&&e.target.id==='vol'){save.set.vol=+e.target.value;if(SND.out)SND.out.gain.value=volLevel();}});
 document.addEventListener('change',e=>{if(e.target&&e.target.id==='vol'){persist();sfx('preview');}});
-document.addEventListener('input',e=>{const id=e.target&&e.target.id;if(id==='duel-n1'||id==='duel-n2'){save.duel.names[id==='duel-n1'?0:1]=e.target.value.slice(0,16);persist();}});
-document.addEventListener('change',e=>{const id=e.target&&e.target.id;if((id==='duel-n1'||id==='duel-n2')&&tab==='play'&&!g)render();});
+document.addEventListener('input',e=>{const id=e.target&&e.target.id;if(id==='duel-n1'||id==='duel-n2'){save.duel.names[id==='duel-n1'?0:1]=e.target.value.slice(0,16);persist();
+  const h=document.getElementById('duel-h2h');if(h)h.innerHTML=duelH2H();}});
 document.addEventListener('input',e=>{if(e.target&&e.target.id==='import-code'){importText=e.target.value;if(importMsg){importMsg='';}}});
 document.addEventListener('keydown',e=>{
   if(e.metaKey||e.ctrlKey||e.altKey)return;
@@ -1866,12 +1911,13 @@ document.addEventListener('touchend',e=>{
   if(now-lastTouchEnd<=350&&!(t.closest&&t.closest('input,textarea,select'))){
     e.preventDefault();
     const b=t.closest&&t.closest('button,[data-bar]');
-    if(b&&!b.closest('#pad,#ipad'))b.dispatchEvent(new MouseEvent('click',{bubbles:true,cancelable:true}));
+    if(b&&!b.closest('#pad,#ipad,#agpad'))b.dispatchEvent(new MouseEvent('click',{bubbles:true,cancelable:true}));
   }
   lastTouchEnd=now;
 },{passive:false});
 document.addEventListener('dblclick',e=>e.preventDefault(),{passive:false});
-document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'&&inv&&!inv.over&&!inv.paused)invPause(true);if(document.visibilityState==='hidden'){writeLocal();if(cloud.ref&&!g)flushCloud();}else if(g&&!g.ended)lockScreen();});
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'&&inv&&!inv.over&&!inv.paused)invPause(true);
+  if(document.visibilityState==='hidden'&&ag&&!ag.over&&!ag.paused)agPause(true);if(document.visibilityState==='hidden'){writeLocal();if(cloud.ref&&!g)flushCloud();}else if(g&&!g.ended)lockScreen();});
 
 /* =====================================================================
    ARCADE · INK INVADERS
@@ -1880,10 +1926,6 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
    doodles on the graph paper, so it works offline in the paper and pen
    the player picked in the Shop.
    ===================================================================== */
-const ARC_GAMES=[
-  {id:'runner',name:'Gate Runner',desc:'Swipe through whichever gate makes your number bigger.'},
-  {id:'dungeon',name:'Dungeon Duel',desc:'Turn-based fights where every attack is a problem.'}
-];
 const BOSS_NAMES=['The Smudge','The Scribbler','Inkblot Rex','The Eraser King','Professor Blot'];
 let inv=null,arcPrevTimer=null;
 /* each operation fires its own laser color */
@@ -1984,10 +2026,10 @@ const ARC_LIST=[
    desc:'Invaders carry problems. Type an answer and fire: your laser hits the invader it solves. Armored ones take two hits, divers swoop at you, and every fifth wave brings a boss.',
    best:()=>[['High score',save.arcade.inv.best.toLocaleString()],['Best wave',save.arcade.inv.bestWave||'–'],['Games',save.arcade.inv.plays]]},
   {id:'runner',name:'Gate Runner',canvas:'arc-prev-runner',act:'data-ag="runner"',
-   desc:'You carry a number. Gates rush at you: type the result of the gate you want and run through it. Pick the bigger one, because every fourth gate ends at an ink wall.',
+   desc:'You carry a number. Gates come at you in pairs: type the result of the one you want and run through it. Pick the bigger result, because after four gates an ink wall takes a bite out of your number. One slip per set is fine. Two and the wall is usually too strong.',
    best:()=>[['High score',save.arcade.runner.best.toLocaleString()],['Best set',save.arcade.runner.bestStep||'–'],['Games',save.arcade.runner.plays]]},
   {id:'dungeon',name:'Dungeon Duel',canvas:'arc-prev-dungeon',act:'data-ag="dungeon"',
-   desc:'Fight down the dungeon one monster at a time. Every right answer swings your sword, and fast answers crit. Take too long and the monster strikes.',
+   desc:'Fight down the dungeon one monster at a time. Every right answer swings your sword and knocks back the monster\'s attack meter, and fast answers crit for double. Let the meter fill and it strikes.',
    best:()=>[['High score',save.arcade.dungeon.best.toLocaleString()],['Best floor',save.arcade.dungeon.bestStep||'–'],['Games',save.arcade.dungeon.plays]]}
 ];
 function arcadeHTML(){
@@ -2010,15 +2052,15 @@ function arcadeHTML(){
     </div>`).join('')}
     <section class="section"><div class="section-h"><h3>Getting harder</h3><p>Every game climbs as you go</p></div>
       <div class="arc-powers">
-        <div class="card"><b>Problems</b><span>Up a level every 2 waves, sets or floors, past your difficulty's usual range. Warm-up stops at level 6, Standard at 10, Hard at 12.</span></div>
+        <div class="card"><b>Problems</b><span>Up a level every 2 waves or floors, and every set in Gate Runner, past your difficulty's usual range. Warm-up stops at level 6, Standard at 10, Hard at 12.</span></div>
         <div class="card"><b>Overdrive</b><span>Levels 10 to 12 only exist in the Arcade: 5-digit sums, 2-digit × 2-digit and bigger.</span></div>
-        <div class="card"><b>Speed</b><span>Invaders march faster, gates rush in quicker and monsters charge sooner.</span></div>
+        <div class="card"><b>Speed</b><span>Invaders march faster and the margins shrink as you go. Gates and monsters give harder problems more time, so the pressure comes from the math.</span></div>
       </div></section>
     <section class="section"><div class="section-h"><h3>Laser colors</h3><p>Each kind of problem has its own color in every game</p></div>${laserLegend()}</section>
     <section class="section"><div class="section-h"><h3>Power-ups</h3><p>Earned with streaks</p></div>
       <div class="arc-powers">
         <div class="card"><b>Invaders</b><span>5 in a row: splash shot. Every 10: shield. Every 15: ink bomb (B).</span></div>
-        <div class="card"><b>Gate Runner</b><span>Every 8 in a row: a Jump (J) to hop a row. Every 12: shield.</span></div>
+        <div class="card"><b>Gate Runner</b><span>Every 8 in a row: a Jump (J) to hop a gate or a wall. Every 12: shield.</span></div>
         <div class="card"><b>Dungeon</b><span>Every 10 in a row: a potion (Q) that heals 2 hearts. Bosses refill you.</span></div>
       </div></section>
   </div>`;
@@ -2231,7 +2273,7 @@ function invHit(t){
     I.score+=Math.round(25*mult);invFloat('+'+Math.round(25*mult),t.x,t.y+30);
     if(b.hp<=0){b.dying=0.001;b.prob=null;I.score+=250*Math.ceil(I.wave/5);invFloat('BOSS DOWN',t.x,t.y,true);
       I.blobs.forEach(x=>{x.dead=true;invSplat(x.x,x.y,10,I.col.ink,5);});sfx('bomb');}
-    else b.prob=invProblem(1);
+    else b.prob=invProblem(I.wave>=10?1:0);
   } else {
     const b=t.o;b.dead=true;invSplat(t.x,t.y,12,I.col.ink,7,lc,D);I.score+=Math.round(15*mult);invFloat('+'+Math.round(15*mult),t.x,t.y);
   }
@@ -2367,12 +2409,12 @@ function invUpdate(dt){
     const b=I.boss;b.hitT=Math.max(0,b.hitT-dt);
     if(b.dying){b.dying+=dt;if(b.dying>1.1){I.boss=null;I.hearts=Math.min(5,I.hearts+1);invFloat('+1 HEART',I.W/2,I.H*0.4,true);invWaveClear();}}
     else{
-      if(!b.prob)b.prob=invProblem(1);
+      if(!b.prob)b.prob=invProblem(I.wave>=10?1:0);   // later bosses ask one level up
       b.fireT-=dt;
       if(b.fireT<=0&&I.blobs.filter(x=>!x.dead).length<2){const bp=invBossPos(L);
         let side=(b.side=-(b.side||1));if(bp.x+side*bp.R*1.6<24||bp.x+side*bp.R*1.6>I.W-24)side=-side;const bx=bp.x+side*bp.R*1.6;
-        I.blobs.push({x:bx,y:bp.y+bp.R*0.3,y0:bp.y+bp.R*0.3,prob:invProblem(-2),p:0,dur:Math.max(5.5,8-Math.ceil(I.wave/5)*0.5),dead:false,id:I.nextId++});
-        b.fireT=Math.max(3.6,6-Math.ceil(I.wave/5)*0.5)/INV_PACE[I.diff];sfx('dive');}
+        I.blobs.push({x:bx,y:bp.y+bp.R*0.3,y0:bp.y+bp.R*0.3,prob:invProblem(-2),p:0,dur:Math.max(6,9.5-Math.ceil(I.wave/5)*0.5),dead:false,id:I.nextId++});
+        b.fireT=Math.max(3.8,7-Math.ceil(I.wave/5)*0.5)/INV_PACE[I.diff];sfx('dive');}
     }
   }
   I.blobs.forEach(bl=>{if(bl.dead)return;bl.p+=dt/bl.dur;bl.y=bl.y0+(L.shipY-L.s*0.6-bl.y0)*bl.p;
@@ -2467,8 +2509,9 @@ function invDraw(){
   // floating text
   I.floats.forEach(f=>{const life=f.big?1.3:0.9,k=f.t/life;c.save();c.globalAlpha=Math.max(0,1-k*k);c.textAlign='center';
     c.font=`900 ${f.big?24:16}px ${C.font}`;c.lineWidth=4;c.strokeStyle=C.surface;const y=f.y-k*(f.big?30:40);
-    c.strokeText(f.text,f.x,y);c.fillStyle=f.big?C.ink:C.ink;c.fillText(f.text,f.x,y);
-    if(f.big){c.globalAlpha*=.35;c.fillStyle=C.hl;const w=c.measureText(f.text).width;c.fillRect(f.x-w/2-4,y-4,w+8,9);}c.restore();});
+    const w=c.measureText(f.text).width,x=Math.max(w/2+6,Math.min(W-w/2-6,f.x));
+    c.strokeText(f.text,x,y);c.fillStyle=C.ink;c.fillText(f.text,x,y);
+    if(f.big){c.globalAlpha*=.35;c.fillStyle=C.hl;c.fillRect(x-w/2-4,y-4,w+8,9);}c.restore();});
   c.restore();
   // flash
   if(I.flash>0){c.save();c.globalAlpha=Math.min(.35,I.flash);c.fillStyle=I.flashCol;c.fillRect(0,0,W,H);c.restore();}
@@ -2701,17 +2744,18 @@ function agFrame(now){
   const dt=Math.min(0.05,Math.max(0,(now-S.last)/1000));S.last=now;
   if(S.stopAt!=null&&S.t>=S.stopAt){S.stopAt=null;S.hitstop=0.05;}
   if(S.hitstop>0){S.hitstop-=dt;}
-  else if(!S.paused&&!S.done){
-    S.t+=dt;
-    if(S.banner){S.banner.t+=dt;if(S.banner.t>2.2)S.banner=null;}
-    if(S.jam>0){S.jam=Math.max(0,S.jam-dt);if(S.jam===0){agDrawInput();agNote('','');}}
-    S.shake=Math.max(0,S.shake-dt*30);S.flash=Math.max(0,S.flash-dt);
-    S.splats=S.splats.filter(s=>(s.t+=dt)<0.7);
-    S.drops=S.drops.filter(d=>{d.t+=dt;if(d.t<0)return true;d.vy+=420*dt;d.x+=d.vx*dt;d.y+=d.vy*dt;return d.t<d.life;});
-    S.floats=S.floats.filter(f=>(f.t+=dt)<(f.big?1.3:0.9));
-    if(!S.over)S.G.update(S,dt);
-  }
+  else if(!S.paused&&!S.done)agStep(S,dt);
   agDraw();
+}
+function agStep(S,dt){
+  S.t+=dt;
+  if(S.banner){S.banner.t+=dt;if(S.banner.t>2.2)S.banner=null;}
+  if(S.jam>0){S.jam=Math.max(0,S.jam-dt);if(S.jam===0){agDrawInput();agNote(S.hint||'','');}}
+  S.shake=Math.max(0,S.shake-dt*30);S.flash=Math.max(0,S.flash-dt);
+  S.splats=S.splats.filter(s=>(s.t+=dt)<0.7);
+  S.drops=S.drops.filter(d=>{d.t+=dt;if(d.t<0)return true;d.vy+=420*dt;d.x+=d.vx*dt;d.y+=d.vy*dt;return d.t<d.life;});
+  S.floats=S.floats.filter(f=>(f.t+=dt)<(f.big?1.3:0.9));
+  if(!S.over)S.G.update(S,dt);
 }
 function agDraw(){
   const S=ag,c=S.c;if(!c)return;
@@ -2731,8 +2775,9 @@ function agDraw(){
   S.drops.forEach(d=>{if(d.t<0)return;c.globalAlpha=Math.max(0,1-d.t/d.life);c.fillStyle=d.col;c.beginPath();c.arc(d.x,d.y,d.r,0,7);c.fill();});c.globalAlpha=1;
   S.floats.forEach(f=>{const life=f.big?1.3:0.9,k=f.t/life;c.save();c.globalAlpha=Math.max(0,1-k*k);c.textAlign='center';
     c.font=`900 ${f.big?24:16}px ${C.font}`;c.lineWidth=4;c.strokeStyle=C.surface;const y=f.y-k*(f.big?30:40);
-    c.strokeText(f.text,f.x,y);c.fillStyle=C.ink;c.fillText(f.text,f.x,y);
-    if(f.big){c.globalAlpha*=.35;c.fillStyle=C.hl;const w=c.measureText(f.text).width;c.fillRect(f.x-w/2-4,y-4,w+8,9);}c.restore();});
+    const w=c.measureText(f.text).width,x=Math.max(w/2+6,Math.min(W-w/2-6,f.x));
+    c.strokeText(f.text,x,y);c.fillStyle=C.ink;c.fillText(f.text,x,y);
+    if(f.big){c.globalAlpha*=.35;c.fillStyle=C.hl;c.fillRect(x-w/2-4,y-4,w+8,9);}c.restore();});
   c.restore();
   if(S.flash>0){c.save();c.globalAlpha=Math.min(.35,S.flash);c.fillStyle=S.flashCol;c.fillRect(0,0,W,H);c.restore();}
   if(S.banner){const b=S.banner,t=b.t,ap=Math.min(1,t/0.25),out=t>1.6?Math.max(0,1-(t-1.6)/0.5):1;
@@ -2748,7 +2793,7 @@ function agHud(){
   const h=$('#ag-hearts');if(h)h.innerHTML=Array.from({length:Math.max(S.heartSlots||3,S.hearts)},(_,i)=>heartSvg(i<S.hearts)).join('');
   const w=$('#ag-step');if(w)w.textContent=S.G.stepLabel(S);
   const sc=$('#ag-score');if(sc){const nv=S.score.toLocaleString();if(sc.textContent!==nv){sc.textContent=nv;sc.classList.remove('bump');void sc.offsetWidth;sc.classList.add('bump');}}
-  const pw=$('#ag-pow');if(pw)pw.innerHTML=S.shield?'<span class="pill hot">Shield</span>':'';
+  const pw=$('#ag-pow');if(pw)pw.innerHTML=(S.G.hudExtra?S.G.hudExtra(S):'')+(S.shield?'<span class="pill hot">Shield</span>':'');
   const sp=$('#ag-sp');if(sp)sp.textContent=S.special;
   const bk=document.querySelector('#agpad .key.bomb');if(bk)bk.classList.toggle('armed',S.special>0);
 }
@@ -2828,6 +2873,11 @@ function agKey(e){
    you run through it. The bigger result is the "best gate". Every set
    of four gates ends at an ink wall: type what's left after the wall
    takes its bite, or Jump it.
+
+   The wall is a share of the best number you could have built from the
+   gates you ran through. One slip (taking the smaller gate) per set is
+   forgiven: the wall always breaks. Two or more and it is usually too
+   strong. Slow rows and jumped rows don't count as slips.
    ===================================================================== */
 const RG={
   add:[[2,9],[3,12],[5,19],[8,29],[11,49],[15,79],[21,99],[25,149],[51,199],[101,299],[101,499],[201,999]],
@@ -2846,27 +2896,40 @@ function rgGate(N,L,op){
   const k=rnd(...R);return mk('+',k,N+k,'add');
 }
 function rgPair(S){
-  const L=rgLevel(S),ops=rgOps(S);let a,b,guard=0;
+  const L=rgLevel(S),ops=rgOps(S),grow=ops.filter(o=>o==='add'||o==='mul');let a,b,guard=0;
   do{const o1=pick(ops);let o2=pick(ops);if(ops.length>1)for(let i=0;i<4&&o2===o1;i++)o2=pick(ops);
+    /* usually keep one gate that grows your number, so a set isn't all shrinking */
+    if(grow.length&&!grow.includes(o1)&&!grow.includes(o2)&&Math.random()<.7)o2=pick(grow);
     a=rgGate(S.N,L,o1);b=rgGate(S.N,L,o2);}
   while((a.res===b.res||(a.sym===b.sym&&a.k===b.k)||Math.abs(a.res-b.res)>Math.max(60,S.N*3))&&guard++<40);
-  if(a.res===b.res)b=rgGate(S.N,L,'add');
+  for(let i=0;i<20&&a.res===b.res;i++)b=rgGate(S.N,L,'add');
   return Math.random()<.5?[a,b]:[b,a];
 }
-function rgLevel(S){return arcLevel(S.diff,S.seg);}
-function rgRowDur(S){return Math.max(4.4,10.5-(S.seg-1)*0.55)/RG_PACE[S.diff];}
+/* gate sets are short (five answers), so the level climbs every set, not every other one */
+function rgLevel(S){return arcLevel(S.diff,S.seg*2-1);}
+/* Seconds a row takes to reach you. Sized to the level (two harder sums need longer)
+   and tightened slowly, set by set, so the pressure comes from the math, not a sprint. */
+function rgRowDur(S){return (7+0.7*rgLevel(S))*Math.max(0.3,1.3-0.05*(S.seg-1))/RG_PACE[S.diff];}
+/* the wall takes this share of the best number the gates you ran through could have made */
+const RG_WALL={easy:[0.33,0.45],standard:[0.4,0.55],hard:[0.45,0.6]};
 function rgNextRow(S){
+  if(S.gateN>=4&&S.N<2){rgStartSet(S);return;}   // nothing left for a wall to take
   if(S.gateN>=4){
-    const wall=Math.max(2,Math.round(S.B*(0.5+Math.random()*0.18)));
-    S.row={kind:'wall',p:0,dur:rgRowDur(S)*0.9,wall,chosen:null,dash:false,
+    const f=RG_WALL[S.diff];let wall=Math.max(2,Math.round(S.B*(f[0]+Math.random()*(f[1]-f[0]))));
+    if(S.slips<=1&&wall>=S.N)wall=Math.max(1,Math.min(S.N-1,Math.round(S.N*0.85)));   // one slip is forgiven
+    S.row={kind:'wall',p:0,dur:rgRowDur(S)*0.8,wall,chosen:null,dash:false,
       prob:S.N>wall?P([{t:'n',v:S.N},{t:'s',v:'−'},{t:'n',v:wall}],{n:S.N-wall,d:1},'sub'):null};
+    S.hint=S.row.prob?'Smash it: type what\'s left':(S.special>0?'Too strong: Jump over it':'Too strong: brace yourself');
+    agNote(S.hint,S.row.prob?'':'bad');
   } else {
     S.row={kind:'gates',p:0,dur:rgRowDur(S),gates:rgPair(S),chosen:null,dash:false};
+    S.hint=S.seg===1&&S.gateN<2?'Type either gate\'s answer':'';
+    if(S.hint)agNote(S.hint,'');
   }
   S.row.born=S.t;
 }
 function rgStartSet(S){
-  S.seg++;S.gateN=0;S.B=S.N;
+  S.seg++;S.gateN=0;S.B=S.N;S.slips=0;S.marks=[];
   const lv=rgLevel(S),up=S.lastLv&&lv>S.lastLv;S.lastLv=lv;
   S.banner={text:'Set '+S.seg,sub:S.seg===1?'Type the gate\'s result to run through it':up?'Harder gates · '+lvName(lv):'Four gates, then a wall',t:0};
   if(up)setTimeout(()=>sfx('levelUp'),400);
@@ -2876,32 +2939,33 @@ function rgLaneX(S,lane){const rw=Math.min(S.W*0.86,440),x0=(S.W-rw)/2;return x0
 function rgRowY(S,p){const top=64,y1=S.H*0.8-34;return top+(y1-top)*p;}
 AG.runner={
   name:'Gate Runner',specialName:'Jump',specialKey:'j',fireName:'Go',
-  pauseHelp:'<p class="muted" style="font-size:13px">Type the result of the gate you want, then Go.<br>Bigger result = best gate. J or Jump hops a row.</p>',
+  pauseHelp:'<p class="muted" style="font-size:13px">Type the result of the gate you want, then Go.<br>The bigger result is the best gate. One slip per set is fine; two and the wall is usually too strong.<br>J or Jump hops over a row.</p>',
+  hudExtra(S){return '<span class="pips" title="This set\'s gates">'+[0,1,2,3].map(i=>`<i class="${S.marks[i]||''}"></i>`).join('')+'</span>';},
   init(S){Object.assign(S,{N:rnd(6,12)*(S.diff==='hard'?3:S.diff==='standard'?2:1),seg:0,gateN:0,B:0,row:null,lane:0,runX:null,scroll:0,
-      dist:0,walls:0,best:0,jumpT:0,special:1,trail:[],lastLv:0,deco:Array.from({length:10},(_,i)=>({y:Math.random(),side:i%2,k:i%3,seed:i*13}))});
+      dist:0,walls:0,best:0,jumpT:0,special:1,hint:'',slips:0,marks:[],lastLv:0,deco:Array.from({length:10},(_,i)=>({y:Math.random(),side:i%2,k:i%3,seed:i*13}))});
     S.runX=rgLaneX(S,0);rgStartSet(S);},
   stepLabel(S){const lv=rgLevel(S);return 'Set '+S.seg+' · '+(lv>9?'OD ':'Lv ')+lv;},
   canFire(S){const r=S.row;if(!r||r.chosen||r.jumped)return false;
-    if(r.kind==='wall'&&!r.prob){agNote(S.special>0?'Too strong: Jump it (J)':'Too strong: brace yourself','bad');sfx('jam');return false;}return true;},
+    if(r.kind==='wall'&&!r.prob){agNote(S.special>0?'Too strong: Jump over it':'Too strong: brace yourself','bad');sfx('jam');S.input='';agDrawInput();return false;}return true;},
   answer(S,v){
     const r=S.row;if(!r||r.chosen)return false;
     if(r.kind==='wall'){
       if(!r.prob){agNote('Too strong to smash: Jump it or brace','bad');return false;}
-      if(eqv(v,r.prob.ans)){r.chosen=true;r.dash=true;agNote('Smash!','hot');sfx('laser',1);return true;}
-      agMiss(r.prob,fmt(v));agNote('Not quite: '+neg(S.N)+' − '+r.wall+' is…','bad');return false;
+      if(eqv(v,r.prob.ans)){r.chosen=true;r.dash=true;S.hint='';agNote('Smash!','hot');sfx('laser',1);return true;}
+      agMiss(r.prob,fmt(v));agNote('Not quite: '+r.prob.text+' = ?','bad');return false;
     }
     const gi=r.gates.findIndex(gt=>eqv(v,{n:gt.res,d:1}));
     if(gi<0){const near=r.gates.slice().sort((a,b)=>Math.abs(a.res-v.n/v.d)-Math.abs(b.res-v.n/v.d))[0];agMiss(near.prob,fmt(v));agNote('No gate gives '+fmt(v),'bad');return false;}
-    r.chosen=r.gates[gi];r.lane=gi;r.dash=true;S.lane=gi;
+    r.chosen=r.gates[gi];r.lane=gi;r.dash=true;S.lane=gi;S.hint='';
     const best=r.chosen.res>=Math.max(...r.gates.map(x=>x.res));
     r.best=best;sfx('laser',Object.keys(OPS).indexOf(r.chosen.op));
-    const st=S.streak+1;agNote(best?(st>=2?`Best gate · ${st} in a row`:'Best gate'):'The other gate was bigger',best?'hot':'');
+    const st=S.streak+1;agNote(best?(st>=2?`Best gate · ${st} in a row`:'Best gate'):S.slips?'Second slip: the wall may be too strong':'Slip: the other gate was bigger',best?'hot':S.slips?'bad':'');
     return true;
   },
   special(S){
     if(S.special<=0){agNote('No jumps: every 8 in a row earns one','');return;}
     const r=S.row;if(!r||r.chosen||r.jumped||S.jumpT>0)return;
-    S.special--;r.jumped=true;r.dash=true;S.jumpT=0.6;sfx('go');agFloat('JUMP!',S.runX,S.H*0.8-70,true);
+    S.special--;r.jumped=true;r.dash=true;S.jumpT=0.6;S.hint='';agNote('','');sfx('go');agFloat('JUMP!',S.runX,S.H*0.8-70,true);
   },
   update(S,dt){
     const H=S.H;
@@ -2917,28 +2981,31 @@ AG.runner={
   },
   arrive(S,r){
     const L=rgLevel(S),y=H0(S),mult=1+Math.floor(S.streak/5)*0.5;
-    S.row=null;
-    if(r.jumped){agNote('','');S.dist++;}
+    S.row=null;S.hint='';let passed=false;
+    if(r.jumped){S.dist++;}
     else if(r.kind==='wall'){
-      if(r.chosen){const pts=Math.round((60+r.wall)*L*0.5*mult);S.score+=pts;S.N-=r.wall;S.walls++;S.shake=10;sfx('bomb');
+      if(r.chosen){const pts=Math.round((60+r.wall)*L*0.5*mult);S.score+=pts;S.N-=r.wall;S.walls++;S.shake=10;sfx('bomb');passed=true;
         for(let i=0;i<5;i++)agSplat(S.W/2+(i-2)*50,y-10,14,S.col.ink,6,S.col.hl,i*0.03);
         agFloat('SMASH! +'+pts,S.W/2,y-60,true);}
       else{agHurt(S.runX,y,S.N>r.wall?'Too slow: the wall hit you':'The wall was too strong');if(r.prob)agMiss(r.prob,null);S.flash=0.3;}
       S.dist++;
     } else if(r.chosen){
-      const g=r.chosen,pts=Math.round(10*L*mult*(r.best?1.5:1));S.score+=pts;S.N=g.res;S.dist++;
+      const g=r.chosen,pts=Math.round(10*L*mult*(r.best?1.5:1));S.score+=pts;S.N=g.res;S.dist++;passed=true;
+      /* the wall is measured against the best path through the gates you actually ran */
+      S.B=Math.max(...r.gates.map(x=>rgApply(S.B,x)));
       if(!reduceMotion)S.stopAt=S.t+0.02;
       agSplat(rgLaneX(S,r.lane),y-30,18,OPCOL[g.op],10,S.col.hl);agFloat('+'+pts,rgLaneX(S,r.lane),y-60);
-      if(r.best){S.best++;}
+      if(r.best)S.best++;else S.slips++;
+      S.marks.push(r.best?'ok':'slip');
       sfx('explode');
-      if(S.streak>0&&S.streak%8===0&&S.special<3){S.special++;agFloat('+JUMP',S.runX,y-90,true);sfx('goal');}
-      if(S.streak>0&&S.streak%12===0&&!S.shield){S.shield=1;agFloat('+SHIELD',S.runX,y-110,true);sfx('freeze');}
     } else {
       const bigger=r.gates.slice().sort((a,b)=>b.res-a.res)[0];agMiss(bigger.prob,null);
       agHurt(S.runX,y,'Too slow: you hit a gate');S.dist++;
     }
-    // best possible path for the wall
-    if(r.kind==='gates'){S.B=Math.max(...r.gates.map(g=>rgApply(S.B,g)));S.gateN++;}
+    if(r.kind==='gates'){S.gateN++;if(!r.chosen)S.marks.push('skip');}
+    /* streak rewards count gates and walls alike */
+    if(passed&&S.streak>0&&S.streak%8===0&&S.special<3){S.special++;agFloat('+JUMP',S.runX,y-90,true);sfx('goal');}
+    if(passed&&S.streak>0&&S.streak%12===0&&!S.shield){S.shield=1;agFloat('+SHIELD',S.runX,y-110,true);sfx('freeze');}
     agHud();
     if(S.over)return;
     if(r.kind==='wall')rgStartSet(S);else rgNextRow(S);
@@ -2991,20 +3058,23 @@ function rgDrawGate(S,c,C,boil,g,i,y,x0,rw,r){
   c.fillStyle='#FFFFFF';c.font=`900 ${Math.min(28,w*0.16)}px ${C.font}`;c.textAlign='center';c.textBaseline='middle';
   c.lineWidth=4;c.strokeStyle='rgba(0,0,0,.25)';const label=g.sym+' '+g.k;c.strokeText(label,cx,by+bh/2+1);c.fillText(label,cx,by+bh/2+1);
   if(chosen){c.font=`900 18px ${C.font}`;c.fillStyle=C.ink;c.lineWidth=4;c.strokeStyle=C.surface;const t='= '+neg(g.res);c.strokeText(t,cx,y+12);c.fillText(t,cx,y+12);}
+  else if(!r.chosen&&!r.jumped&&S.seg===1){/* first set: spell the problem out under each gate */
+    c.font=`800 ${Math.min(16,w*0.1)}px ${C.font}`;c.fillStyle=C.ink;c.lineWidth=4;c.strokeStyle=C.surface;const t=g.prob.text+' = ?';c.strokeText(t,cx,y+12);c.fillText(t,cx,y+12);}
   c.restore();
 }
 function rgDrawWall(S,c,C,boil,r,y,x0,rw){
   const strong=!r.prob,h=56,top=y-38;
   c.save();if(r.jumped)c.globalAlpha=.4;
   c.fillStyle=strong?C.bad:C.surface;c.globalAlpha*=strong?.25:1;c.fillRect(x0+2,top,rw-4,h);c.globalAlpha=r.jumped?.4:1;
-  c.strokeStyle=C.ink;c.lineWidth=2.5;wobLine(c,[[x0+2,top],[x0+rw/2,top],[x0+rw-2,top],[x0+rw-2,top+h],[x0+rw/2,top+h],[x0+2,top+h],[x0+2,top]],1.5,boil);c.stroke();
+  c.strokeStyle=C.ink;c.lineWidth=2.5;
+  [[x0+2,top,x0+rw-2,top],[x0+rw-2,top,x0+rw-2,top+h],[x0+rw-2,top+h,x0+2,top+h],[x0+2,top+h,x0+2,top]].forEach(([ax,ay,bx,by],i)=>{wobLine(c,[[ax,ay],[(ax+bx)/2,(ay+by)/2],[bx,by]],1.2,boil+i*3);c.stroke();});
   c.lineWidth=1.4;c.globalAlpha*=.6;
   for(let row=1;row<3;row++){wobLine(c,[[x0+2,top+row*h/3],[x0+rw-2,top+row*h/3]],1,boil+row);c.stroke();}
   for(let row=0;row<3;row++)for(let bx=x0+(row%2?22:44);bx<x0+rw-4;bx+=44){c.beginPath();c.moveTo(bx,top+row*h/3);c.lineTo(bx,top+(row+1)*h/3);c.stroke();}
   c.restore();
-  const label=(strong?'TOO STRONG · ':'WALL ')+r.wall;
-  drawBubble(c,S.W/2,top-46,label,{fs:20,font:C.font,W:S.W,surface:C.surface,border:strong?C.bad:C.ink,ink:C.ink,col:strong?C.bad:C.ink});
-  if(r.chosen){c.save();c.font=`900 18px ${C.font}`;c.textAlign='center';c.fillStyle=C.ink;c.lineWidth=4;c.strokeStyle=C.surface;const t='left: '+neg(S.N-r.wall);c.strokeText(t,S.W/2,top+h/2+6);c.fillText(t,S.W/2,top+h/2+6);c.restore();}
+  c.save();if(r.jumped)c.globalAlpha=.4;c.font=`900 22px ${C.font}`;c.textAlign='center';c.textBaseline='middle';c.lineWidth=5;c.strokeStyle=C.surface;c.fillStyle=strong?C.bad:C.ink;
+  const wt=r.chosen?'LEFT: '+neg(S.N-r.wall):'WALL '+r.wall;c.strokeText(wt,S.W/2,top+h/2+1);c.fillText(wt,S.W/2,top+h/2+1);c.restore();
+  if(!r.chosen&&!r.jumped)drawBubble(c,S.W/2,top-44,strong?'TOO STRONG':r.prob.text,{fs:20,font:C.font,W:S.W,surface:C.surface,border:strong?C.bad:C.ink,ink:C.ink,col:strong?C.bad:OPCOL.sub});
 }
 function rgDrawRunner(c,x,y,s,o){
   c.save();c.translate(x,y);c.scale(s,s);c.lineWidth=2.4/s;c.lineCap='round';c.lineJoin='round';c.strokeStyle=o.ink;
@@ -3033,14 +3103,20 @@ const DD_MON=[
 ];
 const DD_BOSS=['Ink Dragon','The Lich of Long Division','Count Remainder','Hydra of Fractions','The Final Smudge'];
 const DD_PACE={easy:0.78,standard:1,hard:1.15};
+const DD_KNOCK=0.22;   // each hit you land knocks the monster's attack meter back this far
 function ddLevel(S,bump){return arcLevel(S.diff,S.floor,bump);}
+/* The monster's wind-up is sized to the problem in front of you: the app's own "fast answer"
+   time for that operation and level, times a margin that tightens floor by floor.
+   So a fraction or a long multiplication buys you more time than 7 + 8 does. */
+function ddChargeDur(S,p){const k=Math.max(0.8,2.1-0.05*(S.floor-1));return speedLimit(p.op,p.level)/1000*k/DD_PACE[S.diff]*(S.mon.boss?0.9:1);}
+/* answer inside the "fast answer" time and the swing is a critical hit */
+function ddCritWin(S,p){return speedLimit(p.op,p.level)/1000*{easy:1.15,standard:1,hard:0.9}[S.diff];}
 function ddNewMonster(S){
   const boss=S.floor%5===0,n=S.floor/5;
   const pool=DD_MON.filter(m=>S.ops.includes(m.op));const m=pick(pool.length?pool:DD_MON.slice(0,2));
   const tier=Math.min(2,Math.floor((S.floor-1)/5));
-  const hp=boss?8+3*n:3+Math.floor(S.floor*0.6);
-  const charge=Math.max(4,9-S.floor*0.28)/DD_PACE[S.diff]*(boss?0.85:1);
-  S.mon={boss,kind:boss?'boss':m.op,op:m.op,name:boss?DD_BOSS[(n-1)%DD_BOSS.length]:m.names[tier],hp,max:hp,charge:0,chargeDur:charge,
+  const hp=boss?7+3*n:3+Math.floor(S.floor*0.6);
+  S.mon={boss,kind:boss?'boss':m.op,op:m.op,name:boss?DD_BOSS[(n-1)%DD_BOSS.length]:m.names[tier],hp,max:hp,charge:0,chargeDur:9,
     dmg:boss&&S.floor>=15?2:1,prob:null,hitT:0,lunge:0,dying:0,yIn:0,seed:(Math.random()*1e4)|0};
   const lv=ddLevel(S),up=S.lastLv&&lv>S.lastLv;S.lastLv=lv;
   S.banner={text:boss?'Boss':'Floor '+S.floor,sub:boss?S.mon.name:S.floor===1?'Type answers to swing your sword':up?'Tougher problems · '+lvName(lv):'A '+S.mon.name+' appears',t:0};
@@ -3050,26 +3126,28 @@ function ddNewMonster(S){
 function ddProblem(S){
   const m=S.mon,ops=S.ops;
   const op=m.boss||Math.random()<.3?pick(ops):(ops.includes(m.op)?m.op:pick(ops));
-  const p=agProblem(op,ddLevel(S,m.boss?1:0));p.born=S.t;return p;
+  const p=agProblem(op,ddLevel(S,m.boss&&S.floor>=10?1:0));   // later bosses ask one level up
+ p.born=S.t;p.crit=ddCritWin(S,p);m.chargeDur=ddChargeDur(S,p);return p;
 }
 function ddMonPos(S){const R=Math.min(S.W*0.26,S.H*0.2,120)*(S.mon&&S.mon.boss?1.25:1);
   return{x:S.W/2,y:S.H*0.34-(1-(S.mon?S.mon.yIn:1))*S.H*0.5+(S.mon&&S.mon.lunge>0?Math.sin(S.mon.lunge/0.5*Math.PI)*S.H*0.18:0),R};}
-function ddHeroPos(S){const a=S.heroDash>0?Math.sin(S.heroDash/0.3*Math.PI):0;return{x:S.W*0.2+(S.W*0.3)*a,y:S.H*0.86-(S.H*0.3)*a,s:Math.min(48,S.W*0.12)};}
+/* the hero lunges at the monster's flank, clear of the problem bubble */
+function ddHeroPos(S){const a=S.heroDash>0?Math.sin(S.heroDash/0.3*Math.PI):0,R=Math.min(S.W*0.26,S.H*0.2,120),x0=S.W*0.2,y0=S.H*0.86;
+  return{x:x0+(S.W/2-R*0.95-x0)*a,y:y0+(S.H*0.34+R*0.25-y0)*a,s:Math.min(48,S.W*0.12)};}
 AG.dungeon={
   name:'Dungeon Duel',specialName:'Potion',specialKey:'q',fireName:'Attack',
-  pauseHelp:'<p class="muted" style="font-size:13px">Each right answer swings your sword. Answer fast to crit.<br>Q or Potion heals 2 hearts.</p>',
+  pauseHelp:'<p class="muted" style="font-size:13px">Each right answer swings your sword and knocks the attack meter back. Answer inside the crit timer for double damage.<br>Q or Potion heals 2 hearts.</p>',
   init(S){Object.assign(S,{hearts:5,maxHearts:5,heartSlots:5,floor:0,mon:null,state:'intro',special:1,kills:0,crits:0,heroDash:0,slashes:[],clearT:0,lastLv:0,torch:0});
     this.nextFloor(S);},
   nextFloor(S){S.floor++;ddNewMonster(S);agHud();},
   stepLabel(S){const lv=ddLevel(S);return 'Floor '+S.floor+' · '+(lv>9?'OD ':'Lv ')+lv;},
   canFire(S){return S.state==='play'&&S.mon&&!S.mon.dying&&!!S.mon.prob;},
-  critWin(S){return {easy:5,standard:4,hard:3.4}[S.diff]+(ddLevel(S)>=8?1:0);},
   answer(S,v){
     const m=S.mon,p=m.prob;
     if(!eqv(v,p.ans)){agMiss(p,fmt(v));m.charge=Math.min(0.98,m.charge+0.3);agNote('Missed! It\'s charging','bad');agFloat('MISS',ddHeroPos(S).x,ddHeroPos(S).y-60);return false;}
-    const fast=S.t-p.born<this.critWin(S),dmg=fast?2:1,mult=1+Math.floor((S.streak+1)/5)*0.5;
+    const fast=S.t-p.born<p.crit,dmg=fast?2:1,mult=1+Math.floor((S.streak+1)/5)*0.5;
     const pts=Math.round(10*ddLevel(S)*dmg*mult);S.score+=pts;if(fast)S.crits++;
-    m.hp=Math.max(0,m.hp-dmg);m.hitT=0.3;m.charge=Math.max(0,m.charge-0.18);
+    m.hp=Math.max(0,m.hp-dmg);m.hitT=0.3;m.charge=Math.max(0,m.charge-DD_KNOCK);
     S.heroDash=0.3;const mp=ddMonPos(S);
     S.slashes.push({x:mp.x,y:mp.y,R:mp.R,t:-0.08,col:opCol(p),crit:fast,seed:(Math.random()*1e4)|0});
     if(!reduceMotion)S.stopAt=S.t+0.09;
@@ -3142,9 +3220,9 @@ AG.dungeon={
         if(m.prob){const bb=drawBubble(c,mp.x,mp.y+mp.R*0.95,m.prob.text,{fs:24,font:C.font,W,surface:C.surface,border:C.ink,ink:C.ink,col:opCol(m.prob)});
           // attack meter
           const mw=Math.min(220,W*0.55),mx=mp.x-mw/2,my=bb.bottom+8;
-          c.save();c.strokeStyle=C.ink;c.lineWidth=1.5;c.strokeRect(mx,my,mw,8);c.fillStyle=m.charge>0.75?C.bad:C.ink;c.globalAlpha=m.charge>0.75?0.6+0.4*Math.sin(S.t*20):0.5;c.fillRect(mx+1.5,my+1.5,(mw-3)*m.charge,5);
-          c.globalAlpha=.8;c.font=`800 10px ${C.font}`;c.fillStyle=C.ink;c.textAlign='left';c.fillText('ATTACK',mx,my+20);
-          const cw=Math.max(0,1-(S.t-m.prob.born)/this.critWin(S));if(cw>0){c.textAlign='right';c.fillStyle=C.ink;c.fillText('CRIT '+Math.ceil(cw*this.critWin(S))+'s',mx+mw,my+20);}
+          c.save();c.strokeStyle=C.ink;c.lineWidth=1.5;c.strokeRect(mx,my,mw,10);c.fillStyle=m.charge>0.75?C.bad:C.ink;c.globalAlpha=m.charge>0.75?(reduceMotion?1:0.6+0.4*Math.sin(S.t*20)):0.5;c.fillRect(mx+1.5,my+1.5,(mw-3)*Math.min(1,m.charge),7);
+          c.globalAlpha=.9;c.font=`800 12px ${C.font}`;c.textBaseline='top';c.fillStyle=m.charge>0.75?C.bad:C.ink;c.textAlign='left';c.fillText(m.charge>0.75?'ATTACK COMING':'ATTACK',mx,my+14);
+          const left=m.prob.crit-(S.t-m.prob.born);if(left>0){c.textAlign='right';c.fillStyle=C.ink;c.fillText('CRIT '+Math.ceil(left)+'s',mx+mw,my+14);}
           c.restore();}
       }
     }
@@ -3230,8 +3308,8 @@ function ddDrawMonster(c,m,R,C,boil,t,hit){
   }
   c.restore();
 }
-AG.runner.results=S=>({carries:Math.round(S.correct*1.2+S.walls*6),step:S.seg,reached:`Reached set ${S.seg} · ${S.dist} rows run`,
-  fact:[S.best,'Best gates picked'],ledger:[[`Correct answers (${S.correct} × 1.2)`,Math.round(S.correct*1.2)],[`Walls smashed (${S.walls} × 6)`,S.walls*6]]});
+AG.runner.results=S=>({carries:S.correct*2+S.walls*8,step:S.seg,reached:`Reached set ${S.seg} · ${S.dist} rows run`,
+  fact:[S.best,'Best gates picked'],ledger:[[`Correct answers (${S.correct} × 2)`,S.correct*2],[`Walls smashed (${S.walls} × 8)`,S.walls*8]]});
 AG.dungeon.results=S=>({carries:Math.round(S.correct*1.2+(S.floor-1)*8),step:S.floor,reached:`Reached floor ${S.floor} · ${S.crits} crits`,
   fact:[S.kills,'Monsters beaten'],ledger:[[`Correct answers (${S.correct} × 1.2)`,Math.round(S.correct*1.2)],[`Floors cleared (${S.floor-1} × 8)`,(S.floor-1)*8]]});
 /* read-only snapshot for automated playtesting */
@@ -3240,6 +3318,9 @@ window.__ag=()=>ag&&{id:ag.id,hearts:ag.hearts,score:ag.score,over:ag.over,done:
   floor:ag.floor,state:ag.state,mon:ag.mon?{name:ag.mon.name,hp:ag.mon.hp,max:ag.mon.max,charge:ag.mon.charge,ans:ag.mon.prob?fmt(ag.mon.prob.ans):null,text:ag.mon.prob?ag.mon.prob.text:null}:null};
 
 window.__gen=(op,l)=>{const p=gen(op,l);return{text:p.text,ans:fmt(p.ans),ex:explain(p)};};
+window.__t={halt(){const S=ag||inv;if(S){S.running=false;cancelAnimationFrame(S.raf);}},agStep:dt=>{if(ag&&!ag.done)agStep(ag,dt);},invStep:dt=>{if(inv&&!inv.done)invUpdate(dt);},
+  press:k=>ag?agPress(k):inv?invPress(k):null,ag:()=>ag,inv:()=>inv,targets:()=>invTargets().map(t=>({kind:t.kind,ans:fmt(t.prob.ans),op:t.prob.op,level:t.prob.level,y:t.y,arm:!!(t.o&&t.o.armor)})),
+  g:()=>g&&g.p?{ans:fmt(g.p.ans),text:g.p.text,op:g.p.op,level:g.p.level,locked:g.locked,mode:g.mode,streak:g.streak}:null};
 /* read-only snapshot for automated playtesting */
 window.__inv=()=>inv&&{wave:inv.wave,hearts:inv.hearts,score:inv.score,state:inv.state,over:inv.over,done:inv.done,paused:inv.paused,streak:inv.streak,bombs:inv.bombs,shield:inv.shield,triple:inv.triple,jam:inv.jam,kills:inv.kills,
   boss:inv.boss?{hp:inv.boss.hp,max:inv.boss.max}:null,targets:invTargets().map(t=>({kind:t.kind,arm:!!(t.o&&t.o.armor),text:t.prob.text,ans:fmt(t.prob.ans),x:Math.round(t.x),y:Math.round(t.y)})),alive:inv.aliens.filter(a=>a.alive&&!a.dying).length,armored:inv.aliens.filter(a=>a.alive&&!a.dying&&a.armor>0).length,level:invLevel(0),warn:inv.aliens.some(a=>a.warn>0),near:inv.near||0};
